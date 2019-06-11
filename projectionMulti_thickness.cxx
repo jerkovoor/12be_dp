@@ -1,3 +1,6 @@
+//Calculates and plots the residual vs. the angle for different target distances.
+//Also plots the fit parameters of the residuals vs the target distance and finds the minima for both the slope and the intercept.
+
 using namespace std;
 
 #include "TFile.h" 

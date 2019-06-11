@@ -1,3 +1,6 @@
+//Calculates and plots the residual vs. the angle for different beam energies.
+//Also plots the fit parameters of the residuals vs the beam energy and finds the minima for both the slope and the intercept.
+
 using namespace std;
 
 #include "TFile.h" 
@@ -45,7 +48,8 @@ void projectionMulti2() {
 		KEBeamInitial=KEBeamInitial+2;
 	}
 	// Bin numbers 571 to 937 (energies from 2.85 to 4.68) were selected after inspecting all the 16 histograms for the ground state
-	int MinBin = 571;
+	int MinBin = 571; //with pedestal
+	//int MinBin = 583; //without pedestal (583 for alpha calibration and 578 for Carbon secondary calibration)
 	int MaxBin = 937;
 	TH1D *h1[16];
 	TH1D *h2[16];
@@ -65,7 +69,7 @@ void projectionMulti2() {
 	TGraphErrors *gr3 = new TGraphErrors();
 	TGraphErrors *gr4 = new TGraphErrors();
 	
-	TFile *f = new TFile("../Analysis/with_pedestal/C_pedestal_MicronDL_60sumT_85mm.root","READ");//with pedestal
+	TFile *f = new TFile("../Analysis/C_calib/C_nopedestal_CCalib.root","READ");//with pedestal
 	//TFile *f = new TFile("../Analysis/no_pedestal/C_nopedestal.root","READ");//without pedestal
 	TH2D *h_Eloss = (TH2D*)f->Get("hYuAnPID");
 	TH2D *h_noEloss = (TH2D*)f->Get("hYuAnPID1");
@@ -86,8 +90,8 @@ void projectionMulti2() {
 		h1[i] = h_Eloss->ProjectionY(Form("h1_%d",i),BinLow[i],BinHigh[i],"");
 		h2[i] = h_noEloss->ProjectionY(Form("h2_%d",i),BinLow[i],BinHigh[i],"");
 		ExcitedStateCutBin[i][0]=h1[i]->GetXaxis()->FindBin(ExcitedStateCutEn[i][0]);
-		//ExcitedStateCutBin[i][1]=h1[i]->GetXaxis()->FindBin(ExcitedStateCutEn[i][1]);
-		ExcitedStateCutBin[i][1]=h1[i]->GetXaxis()->FindBin((ExcitedStateCutEn[i][0]+ExcitedStateCutEn[i][1])/2);
+		ExcitedStateCutBin[i][1]=h1[i]->GetXaxis()->FindBin(ExcitedStateCutEn[i][1]);
+		//ExcitedStateCutBin[i][1]=h1[i]->GetXaxis()->FindBin((ExcitedStateCutEn[i][0]+ExcitedStateCutEn[i][1])/2);
 	}
 	
 	ofstream parameters;
@@ -125,8 +129,8 @@ void projectionMulti2() {
 				Residual[i]=(WeightedSum[i]/TotalCounts[i])-kin_value[i];
 			}
 			for(int k=0; k<TotalCounts[i]; k++){
-				gr1[KE]->SetPoint(NumberPoints,mid_ang[i],Values[i][k]);
-				NumberPoints++;
+					gr1[KE]->SetPoint(NumberPoints,mid_ang[i],Values[i][k]);
+					NumberPoints++;
 			}
 		}
 		gr1[KE]->Fit(fit_lin,"QE","",angle[0],angle[16]);

@@ -1,3 +1,6 @@
+//Calculates and plots the residual vs. the angle.
+//Change the script accordingly to look at the ground state and the third excited state
+
 using namespace std;
 
 #include "TFile.h" 
@@ -38,7 +41,7 @@ void projectionMulti() {
 	double Values[16][40];
 	
 	// Bin numbers 571 to 937 (energy from 2.85 to 4.68) were selected after inspecting all the 16 histograms for the GS
-	int MinBin = 571;
+	int MinBin = 578;
 	int MaxBin = 937;
 	
 	/*TCanvas *c1 = new TCanvas ( "c1" ); //create a canvas
@@ -51,7 +54,7 @@ void projectionMulti() {
 
 		//cout << "The value at 125 degrees is : "<< KinFcn->Eval(125.0,0,0) << endl;
 		
-		TFile *f = new TFile("../Analysis/C_calib/C_pedestal_CCalib.root","READ");
+		TFile *f = new TFile("../Analysis/C_calib/C_nopedestal_CCalib.root","READ");
 		TH2D *h_Eloss = (TH2D*)f->Get("hYuAnPID");
 		TH2D *h_noEloss = (TH2D*)f->Get("hYuAnPID1");
 
@@ -136,9 +139,9 @@ void projectionMulti() {
 			}
 	*/
 			for(int k=0; k<TotalCounts[i]; k++){
-				gr1->SetPoint(NumberPoints,mid_ang[i],Values[i][k]);
-				NumberPoints++;	
-			}	
+					gr1->SetPoint(NumberPoints,mid_ang[i],Values[i][k]);
+					NumberPoints++;
+			}
 			
 		}
 		

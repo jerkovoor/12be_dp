@@ -1,3 +1,5 @@
+//Projection of hYuAnPID
+
 using namespace std;
 
 #include "TFile.h" 
@@ -39,14 +41,15 @@ void projection2() {
 	double ExcitedStateCutBin[16][2];
 	
 	// Bin numbers 571 to 937 (energy from 2.85 to 4.68)were selected after inspecting all the 16 histograms
-	int MinBin = 571;
+	//int MinBin = 571; //with pedestal
+	int MinBin = 578; //without pedestal
 	int MaxBin = 937;
 	
 	TF1 *KinFcn = new TF1("KinFcn",kin,0,180,0);
 
 	//cout << "The value at 125 degrees is : "<< KinFcn->Eval(125.0,0,0) << endl;
 	
-	TFile *f = new TFile("../Analysis/C_calib/C_pedestal_MicronDL_60sumT_calib_S4.root","READ");
+	TFile *f = new TFile("../Analysis/C_calib/C_nopedestal_1_2Peaks_CCalib.root","READ");
 	TH2D *h_Eloss = (TH2D*)f->Get("hYuAnPID");
 	TH2D *h_noEloss = (TH2D*)f->Get("hYuAnPID1");
 
@@ -114,62 +117,6 @@ void projection2() {
 		h2[i]->Draw();
 		//h2[i]->Draw("same");
 		
-	}
-	
-	/*int NumberPoints = 0;
-	TGraphErrors *gr1 = new TGraphErrors();
-	for (int i=0;i<16;i++){
-		if (TotalCounts[i]==0){
-			continue;
-		}else{
-			cout << "Setting point " << NumberPoints << "\tValue : " << Residual[i] << "\tAngle : " << mid_ang[i] << " +/- " << errorbar[i] << endl;
-			gr1->SetPoint(NumberPoints,mid_ang[i],Residual[i]);
-			//gr1->SetPointError(NumberPoints,errorbar[i],0.1);
-			NumberPoints++;
-		}
-	}*/
-	
-	/*TGraph *gr1 = new TGraph();
-	for (int i=0;i<16;i++){
-		if (TotalCounts[i]==0){
-			continue;
-		}else{
-			gr1->SetPoint(i,mid_ang[i],Residual[i]);
-		}
-	}*/
-	
-	
-	/*double x[2]={120,160};
-	
-	TF1 *fit_lin = new TF1 ( "fit_lin","pol1",0,200 );
-	//fit_lin->SetParameters(-0.1,0);
-	
-	TGraph *gr2 = new TGraph(2,x,xaxis);
-	
-	TF1 *KinFcn2 = new TF1("KinFcn2",kin,angle[0],angle[16],0);
-	
-	
-	TCanvas *c2 = new TCanvas ( "c2" ); //create a canvas
-	c2->Divide ( 1,2 );
-
-    c2->cd(1);
-	gr1->SetLineColor(kBlack);
-	gr1->GetXaxis()->SetLimits(angle[0],angle[16]);
-	gr1->SetMarkerStyle(21);
-	gr1->SetTitle("Residual vs. Angle");
-    gr1->Draw("AP");
-	gr1->Fit(fit_lin,"E","",angle[0],angle[16]);
-	gr1->Fit("pol1");
-	
-	gr2->SetLineColor(kRed);
-	gr2->Draw("same");
-	c2->Update();
-	
-	c2->cd(2);
-	h_Eloss->Draw("colz");
-	KinFcn2->SetLineColor(kRed);
-	KinFcn2->SetLineWidth(3);
-	KinFcn2->Draw("same");*/
-	
+	}	
 }
 

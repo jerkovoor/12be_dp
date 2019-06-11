@@ -1,3 +1,11 @@
+//Alpha calibration
+.L decode.cxx++
+decode(4972)
+decode(4973)
+decode(4974)
+decode(4975)
+decode(4977)
+
 //carbon
 root -l
 .L decode.cxx++

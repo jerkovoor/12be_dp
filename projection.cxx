@@ -1,3 +1,7 @@
+//For secondary calibration using the 12C(d,p)13C kinematics.
+//Calculates the mean value of channel number for each strip.
+//Also calculates the standard deviation.
+
 using namespace std;
 
 #include "TFile.h" 
@@ -54,7 +58,7 @@ void projection() {
 	for (int i=0;i<17;i++){
 			angle[i]=180-TMath::RadToDeg()*TMath::ATan((50+(15-i)*(4.94))/85);        
 			//cout << angle[i] << endl;  
-		}
+	}
 	
 	for(int sec=0;sec<8;sec++){
 		TH2D *h_Eloss = (TH2D*)f->Get(Form("hYuAnPID%d",sec));
