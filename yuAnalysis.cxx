@@ -49,15 +49,39 @@ struct sortByEnergyS3 {
 	}
 };
 
+std::vector<YuDet> CheckChargeSharing(std::vector<YuDet> detect) {
+	std::vector<YuDet> newDetector;
+	
+	int sectorHits[8];
+	for(int i = 0; i < 8; i++) {
+		sectorHits[i] = 0;
+	}
+	for(auto det : detect) {
+		sectorHits[det.sector]++;
+	}
+	
+	for(int i = 0; i < 8; i++) {
+		if(sectorHits[i] > 1) printf("Sector %d has %d hits\n", i, sectorHits[i]);
+	}
+	
+	return newDetector;
+}
+
 
 double yuAnalysis(){
 	//open the output file
-	TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/CarbonGain/C_pedestal_TRIUMF_DL_QvalMinGS_Yu.root","RECREATE"); //change the path and name accordingly
+	TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/C_pedestal_TRIUMF_DL_NoOffset_Shift0_0883_Yu_TargetDistance80_87mm.root","RECREATE"); //change the path and name accordingly
   
 	//Open the input files
 	TChain *chain = new TChain ( "AutoTree" ); //chain the desired input files
 	
-	EnergyLoss* protonEL = new EnergyLoss("Proton_DeuteriumTarget.dat");
+    EnergyLoss* protonELB = new EnergyLoss("Proton_Boron.dat");
+    EnergyLoss* protonELA = new EnergyLoss("Proton_Aluminum.dat");
+	EnergyLoss* protonELD = new EnergyLoss("Proton_DeuteriumTarget.dat");
+    
+    protonELB->AddBackHigh(15.);
+    protonELA->AddBackHigh(15.);
+    protonELD->AddBackHigh(15.);
 	
 	std::map<int, double> YuAngleMap;
 	YuAngleMap[0] = 31.68434901;
@@ -102,13 +126,13 @@ double yuAnalysis(){
 	}*/
 	
 	//Carbon data with target
-	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_5001.root" ); //change the path to the files and the file name accordingly
-	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_5002.root" );
-	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_5003.root" );
-	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_5004.root" );
-	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_5006.root" );
-	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_5007.root" );
-	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_5009.root" );
+	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5001.root" ); //change the path to the files and the file name accordingly
+	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5002.root" );
+	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5003.root" );
+	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5004.root" );
+	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5006.root" );
+	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5007.root" );
+	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5009.root" );
 	
 	
 	//define the input variables
@@ -312,7 +336,7 @@ double yuAnalysis(){
 	double Yubins[17]={0};
 	
 	for (int i=0; i<17; i++){
-		Yubins[i]=180-TMath::RadToDeg()*TMath::ATan((50+(16-i)*4.94)/(0-Yuz));
+		Yubins[i]=180-TMath::RadToDeg()*atan2((50+(16-i)*4.94),(0-Yuz));
 		//cout << Yubins[i] << endl;
 	}
 	
@@ -357,40 +381,61 @@ double yuAnalysis(){
 	TH2D *hYuAnPID90_180 = new TH2D("hYuAnPID90_180","YuE vs Angle with an IC and PID gate, 90-180",16,Yubins,6000,0,6);
 	TH2D *hYuAnPID180_270 = new TH2D("hYuAnPID180_270","YuE vs Angle with an IC and PID gate, 180-270",16,Yubins,6000,0,6);
 	TH2D *hYuAnPID270_360 = new TH2D("hYuAnPID270_360","YuE vs Angle with an IC and PID gate, 270-360",16,Yubins,6000,0,6);
-	TH2D *hYuAnPIDR0_3 = new TH2D("hYuAnPIDR0_3","YuE vs Angle with an IC and PID gate, rings 0 to 3",16,Yubins,6000,0,6);
-	TH2D *hYuAnPIDR4_7 = new TH2D("hYuAnPIDR4_7","YuE vs Angle with an IC and PID gate, rings 4 to 7",16,Yubins,6000,0,6);
-	TH2D *hYuAnPIDR8_11 = new TH2D("hYuAnPIDR8_11","YuE vs Angle with an IC and PID gate, rings 8 to 11",16,Yubins,6000,0,6);
-	TH2D *hYuAnPIDR12_15 = new TH2D("hYuAnPIDR12_15","YuE vs Angle with an IC and PID gate, rings 12 to 15",16,Yubins,6000,0,6);
+	TH2D *hYuAnPIDRs0_7 = new TH2D("hYuAnPIDRs0_7","YuE vs Angle with an IC and PID gate, rings 0 to 7",16,Yubins,6000,0,6);
+	//TH2D *hYuAnPIDR4_7 = new TH2D("hYuAnPIDR4_7","YuE vs Angle with an IC and PID gate, rings 4 to 7",16,Yubins,6000,0,6);
+	//TH2D *hYuAnPIDR8_11 = new TH2D("hYuAnPIDR8_11","YuE vs Angle with an IC and PID gate, rings 8 to 11",16,Yubins,6000,0,6);
+	TH2D *hYuAnPIDRs8_15 = new TH2D("hYuAnPIDRs12_15","YuE vs Angle with an IC and PID gate, rings 8 to 15",16,Yubins,6000,0,6);
 	
 	//Q values
-	TH1D *hQval = new TH1D("hQval","Q values",400,-10,10);
-	TH1D *hQvalT = new TH1D("hQvalT","Q values with target energy loss",400,-10,10);
-	TH1D *hQval1 = new TH1D("hQval1","Q values",400,-10,10);
-	TH2D *hQvalAn = new TH2D("hQvalAn","Q values vs Angle with energy loss",16,Yubins,400,-10,10);
-	TH2D *hQvalAnT = new TH2D("hQvalAnT","Q values vs Angle with target energy loss",16,Yubins,400,-10,10);
+	TH1D *hQval = new TH1D("hQval","Q values",160,-4,4);
+	TH1D *hQvalT = new TH1D("hQvalT","Q values with target energy loss",160,-4,4);
+	TH1D *hQval1 = new TH1D("hQval1","Q values",160,-4,4);
+	TH2D *hQvalAn = new TH2D("hQvalAn","Q values vs Angle with energy loss",16,Yubins,160,-4,4);
+	TH2D *hQvalAnT = new TH2D("hQvalAnT","Q values vs Angle with target energy loss",16,Yubins,160,-4,4);
 	
-	TH1D *hQvalLeft = new TH1D("hQvalLeft","Q values, left side of Yu",400,-10,10);
-	TH1D *hQvalRight = new TH1D("hQvalRight","Q values, right side of Yu",400,-10,10);
-	TH1D *hQvalTop = new TH1D("hQvalTop","Q values, top part of Yu",400,-10,10);
-	TH1D *hQvalBottom = new TH1D("hQvalBottom","Q values, bottom part of Yu",400,-10,10);
-	TH1D *hQval315_45 = new TH1D("hQval315_45","Q values, 315-45",400,-10,10);
-	TH1D *hQval45_135 = new TH1D("hQval45_135","Q values, 45-135",400,-10,10);
-	TH1D *hQval135_225 = new TH1D("hQval135_225","Q values, 135-225",400,-10,10);
-	TH1D *hQval225_315 = new TH1D("hQval225_315","Q values, 225-315",400,-10,10);
-	TH1D *hQval0_90 = new TH1D("hQval0_90","Q values, 0-90",400,-10,10);
-	TH1D *hQval90_180 = new TH1D("hQval90_180","Q values, 90-180",400,-10,10);
-	TH1D *hQval180_270 = new TH1D("hQval180_270","Q values, 180-270",400,-10,10);
-	TH1D *hQval270_360 = new TH1D("hQval270_360","Q values, 270-360",400,-10,10);
-	TH1D *hQvalR0_3 = new TH1D("hQvalR0_3","Q values, rings 0 to 3",400,-10,10);
-	TH1D *hQvalR4_7 = new TH1D("hQvalR4_7","Q values, rings 4 to 7",400,-10,10);
-	TH1D *hQvalR8_11 = new TH1D("hQvalR8_11","Q values, rings 8 to 11",400,-10,10);
-	TH1D *hQvalR12_15 = new TH1D("hQvalR12_15","Q values, rings 12 to 15",400,-10,10);
+	TH1D *hQvalLeft = new TH1D("hQvalLeft","Q values, left side of Yu",160,-4,4);
+	TH1D *hQvalRight = new TH1D("hQvalRight","Q values, right side of Yu",160,-4,4);
+	TH1D *hQvalTop = new TH1D("hQvalTop","Q values, top part of Yu",160,-4,4);
+	TH1D *hQvalBottom = new TH1D("hQvalBottom","Q values, bottom part of Yu",160,-4,4);
+	TH1D *hQval315_45 = new TH1D("hQval315_45","Q values, 315-45",160,-4,4);
+	TH1D *hQval45_135 = new TH1D("hQval45_135","Q values, 45-135",160,-4,4);
+	TH1D *hQval135_225 = new TH1D("hQval135_225","Q values, 135-225",160,-4,4);
+	TH1D *hQval225_315 = new TH1D("hQval225_315","Q values, 225-315",160,-4,4);
+	TH1D *hQval0_90 = new TH1D("hQval0_90","Q values, 0-90",160,-4,4);
+	TH1D *hQval90_180 = new TH1D("hQval90_180","Q values, 90-180",160,-4,4);
+	TH1D *hQval180_270 = new TH1D("hQval180_270","Q values, 180-270",160,-4,4);
+	TH1D *hQval270_360 = new TH1D("hQval270_360","Q values, 270-360",160,-4,4);
+	TH1D *hQvalRs0_7 = new TH1D("hQvalRs0_7","Q values, rings 0 to 7",160,-4,4);
+    
+    TH1D *hQvalR[16];
+    for (int i=0;i<16;i++){
+        hQvalR[i] = new TH1D(Form("hQvalR%d",i),Form("Q values, ring %d",i),160,-4,4);
+    }
+    
+    TH1D *hQvalS[8];
+    for (int i=0;i<8;i++){
+        hQvalS[i] = new TH1D(Form("hQvalS%d",i),Form("Q values, sector %d",i),160,-4,4);
+    }
+    
+    TH1D *hQvalRs0_3 = new TH1D("hQvalRs0_3","Q values, rings 0 to 3",160,-4,4);
+	TH1D *hQvalRs4_7 = new TH1D("hQvalRs4_7","Q values, rings 4 to 7",160,-4,4);
+	TH1D *hQvalRs8_11 = new TH1D("hQvalRs8_11","Q values, rings 8 to 11",160,-4,4);
+    TH1D *hQvalRs12_15 = new TH1D("hQvalRs12_15","Q values, rings 12 to 15",160,-4,4);
+    
+	TH1D *hQvalRs8_15 = new TH1D("hQvalRs8_15","Q values, rings 8 to 15",160,-4,4);
+    TH1D *hQvalRs4_12 = new TH1D("hQvalRs4_12","Q values, rings 4 to 12",160,-4,4);
+    TH1D *hQvalRs12_4 = new TH1D("hQvalRs12_4","Q values, rings 12 to 4",160,-4,4);
 	
 	TH2D *hYuEnM = new TH2D("hYuEnM","YuE1 vs YuE2 for multiplicity 2",6000,0,6,6000,0,6);
 	TH2D *hYuEnMICPID = new TH2D("hYuEnMICPID","YuE1 vs YuE2 for multiplicity 2 with IC and PID gates",6000,0,6,6000,0,6);//2400,0,2.4
 	
 	TH2D *hYuAnPIDSec[8];//YuE vs Angle with an IC and PID gate sectorwise
 	TH2D *hYuAnPIDRing[16];//YuE vs Angle with an IC and PID gate ringwise
+	TH2D *hYuAnPIDR0_7[8];
+    TH2D *hYuAnPIDR8_15[8];
+    TH1D *hQvalR0_7[8];
+    TH1D *hQvalR8_15[8];
+    
     
 	for(int i=0; i<8; i++){
 		string namehYuAnPIDSec = Form("hYuAnPIDSec_%i",i);
@@ -402,10 +447,21 @@ double yuAnalysis(){
 		hYuAnPIDRing[i] = new TH2D(namehYuAnPIDRing.c_str(),"YuE vs Sector Number with an IC and PID gate for each ring",8,0,8,6000,0,6);//240,0,2.4
 	}
     
+    for(int i=0; i<8; i++){
+		string namehYuAnPIDR0_7 = Form("hYuAnPIDR0_7_%i",i);
+		hYuAnPIDR0_7[i] = new TH2D(namehYuAnPIDR0_7.c_str(),Form("YuE vs Angle with an IC and PID gate for rings 0-7 with ring_%i removed",i),16,Yubins,6000,0,6);//240,0,2.4
+        string namehYuAnPIDR8_15 = Form("hYuAnPIDR8_15_%i",i+8);
+		hYuAnPIDR8_15[i] = new TH2D(namehYuAnPIDR8_15.c_str(),Form("YuE vs Angle with an IC and PID gate for rings 8-15 with ring_%i removed",i+8),16,Yubins,6000,0,6);//240,0,2.4
+        string namehQvalR0_7 = Form("hQvalR0_7_%i",i);
+		hQvalR0_7[i] = new TH1D(namehQvalR0_7.c_str(),Form("Q values for rings 0-7 with ring_%i removed",i),160,-4,4);//240,0,2.4
+        string namehQvalR8_15 = Form("hQvalR8_15_%i",i+8);
+		hQvalR8_15[i] = new TH1D(namehQvalR8_15.c_str(),Form("Q values for rings 8-15 with ring_%i removed",i+8),160,-4,4);//240,0,2.4
+	}
+	
+    
 	//start reading the tree
 	int ev = chain->GetEntries(); //get the total number of entries
 	cout << "Total number of events =" << ev << endl;
-	int ev_num=0;
 	
 	//variable calculation for the YY1 detectors used in angle calculations
 	float YChWidth = ( Ydr1 - Ydr0 ) /16.;
@@ -494,21 +550,50 @@ double yuAnalysis(){
 		}
 	}
 	
-	int seed = 123;
+	//double x, y;
+    double phi[8], r[16], R[8][16], DetAngle[8][16];
+    phi[0]=22.5;
+    for (int i=1;i<8;i++){
+        phi[i]=phi[0]+45*i;
+        //cout << phi[i] << endl;
+    }
+    
+    for (int i=0;i<16;i++){
+        r[i]=50+((129.-50.)/16)*(0.5+i);
+        //cout << r[i] << endl;
+    }
+    
+    int seed = 123;
 	TRandom3* ran = new TRandom3(seed);
-	double shift=0.154;//0.0924;
+	
+	for (int i=0;i<8;i++){
+        for (int j=0;j<16;j++){
+            double x_yu = r[j]*sin(phi[i]);
+            double y_yu = r[j]*cos(phi[i]);
+            double x_target = 0;
+            double y_target = 0;
+            TVector3 vec1(0, 0, 0-Yuz);
+            TVector3 vec2(x_yu - x_target, y_yu - y_target, Yuz);
+            double angle = vec1.Angle(vec2);
+            // std::cout << i << '\t' << j << '\t' << angle*180./M_PI << std::endl;
+            //R[i][j][xindex][yindex]=TMath::Sqrt(pow((x[xindex]-A),2)+pow((y[yindex]-B),2));
+            //DetAngle[i][j][xindex][yindex]=180-TMath::RadToDeg()*TMath::ATan(R[i][j][xindex][yindex]/(0-Yuz));
+            DetAngle[i][j] = angle*180./M_PI;
+            //cout << DetAngle[i][j][xindex][yindex] << endl;
+        }
+    }
+	
+
+	double shift=0.0883486;//0.0904;//0.0924;//0.154;
 	double YuEnergyLoss, YuEnergyShift;
 	////////////////////////////////
 	// Event by event starts here //
 	////////////////////////////////
 	
-	        
-	while(ev_num<=ev){
-		if ( ev_num%10000==0 ) cout << "Current event = " << ev_num << "\r"<< flush;
+	for(int ev_num = 0; ev_num < ev; ev_num++) {
+		if ( ev_num%50000==0 ) cout << "Current event = " << ev_num << "\r"<< flush;
 		chain->GetEntry ( ev_num ); //get the current entry
-		
-		ev_num = ev_num + 1;
-		
+				
 		//Defining a structure YuDetector
 		vector<YuDet> YuDetector;
 		for(size_t i = 0; i < YuEnergy->size(); i++) {
@@ -532,37 +617,26 @@ double yuAnalysis(){
 		}
 		
 		if(Sd1rDetector.empty() || Sd2rDetector.empty()) continue;
-		if(!pidcut->IsInside(Sd2rDetector[0].energy,Sd1rDetector[0].energy) && (ICEnergyRaw<1500 || ICEnergyRaw>2200)) continue;
+		//if(YuDetector.empty()) continue;
+		//if(!pidcut->IsInside(Sd2rDetector[0].energy,Sd1rDetector[0].energy) || ICEnergyRaw<1500 || ICEnergyRaw>2200) continue;
 		
 		//Sorting Yu
-		if(!YuDetector.empty()){
-			std::sort(YuDetector.begin(),YuDetector.end(),
-			sortByEnergyYY1());
-		}
+		if(!YuDetector.empty()) std::sort(YuDetector.begin(), YuDetector.end(), sortByEnergyYY1());
 		
 		//Sorting Sd1r
-		if(!Sd1rDetector.empty()){
-			std::sort(Sd1rDetector.begin(),Sd1rDetector.end(),
-			sortByEnergyS3());
-		}
+		if(!Sd1rDetector.empty()) std::sort(Sd1rDetector.begin(), Sd1rDetector.end(), sortByEnergyS3());
 		
 		//Sorting Sd2r
-		if(!Sd2rDetector.empty()){
-			std::sort(Sd2rDetector.begin(),Sd2rDetector.end(),
-			sortByEnergyS3());
-		}
+		if(!Sd2rDetector.empty()) std::sort(Sd2rDetector.begin(), Sd2rDetector.end(), sortByEnergyS3());
 		
 		if(YuDetector.size()>1) {
-			if(YuDetector[0].energy>0){
-				hYuEnM->Fill(YuDetector[0].energy,YuDetector[1].energy);
-				//if (pidcut->IsInside(Sd2rDetector[0].energy,Sd1rDetector[0].energy ) && ICEnergyRaw>620 && ICEnergyRaw<1100 ){
-				hYuEnMICPID->Fill(YuDetector[0].energy,YuDetector[1].energy);
-			}
+			hYuEnM->Fill(YuDetector[0].energy,YuDetector[1].energy);
+			hYuEnMICPID->Fill(YuDetector[0].energy,YuDetector[1].energy);
 		}
 		
-		/*
+		
 		//Sd1r vs Sd2r calibrated
-		if(Sd1rDetector.size()>0 && Sd2rDetector.size()>0 && Sd1rMul==1 && Sd2rMul==1){
+		if(Sd1rDetector.size()>0 && Sd2rDetector.size()>0){// && Sd1rMul==1 && Sd2rMul==1){
 			hCSd1rSd2r->Fill(Sd2rDetector[0].energy,Sd1rDetector[0].energy); //Calibrated Sd1r vs Sd2r energy with no gates
 			if ( ICEnergyRaw>1500 && ICEnergyRaw<2200){
 				hCSd1rSd2rIC->Fill ( Sd2rDetector[0].energy,Sd1rDetector[0].energy );  //Calibrated Sd1r vs Sd2r energy with IC gate
@@ -577,147 +651,183 @@ double yuAnalysis(){
 				} //end of Yd gates
 			} //end of IC gates
 		} //end of Sd1r vs Sd2r calibrated
-		*/
+		
 		
 		//fill in the Yu detector
-		if(!YuDetector.empty()){
-			//if (YuDetector[0].energy>0.20 && ( YuChannel->at(0)!=82 && YuChannel->at(0)!=96 && YuChannel->at(0)!=106 && YuChannel->at(0)!=111 ))
-			if (YuDetector[0].energy>1){
-				//calculate the angles for the Yu detector
-				yuM = Ydr0+ ( YuDetector[0].ring*YChWidth )+YChMiddle;
-				TVector3 YuposM ( 0,yuM,Yuz); //shifting the detecor
-				YuposM.SetPhi ( TMath::Pi() /2-YuDetector[0].sector *TMath::Pi() /4 ); //Pi/2 because the center of the sector is at 90degrees, Pi/4 is because there is 8 sectors so it is 2Pi/8
-				//YuthetaM = beam.Angle ( YuposM ) *TMath::RadToDeg();
-				YuthetaM=ran->Uniform(Yubins[15-YuDetector[0].ring],Yubins[15-YuDetector[0].ring+1]);
-				YuAngle->push_back(YuthetaM);
+		if (!YuDetector.empty() && YuDetector[0].energy>1){
+			//calculate the angles for the Yu detector
+			yuM = Ydr0 + ( YuDetector[0].ring*YChWidth )+YChMiddle;
+			TVector3 YuposM ( 0,yuM,Yuz); //shifting the detecor
+			YuposM.SetPhi ( TMath::Pi() /2-YuDetector[0].sector *TMath::Pi() /4 ); //Pi/2 because the center of the sector is at 90degrees, Pi/4 is because there is 8 sectors so it is 2Pi/8
+			//YuthetaM = beam.Angle ( YuposM ) *TMath::RadToDeg();
+			//YuthetaM=ran->Uniform(Yubins[15-YuDetector[0].ring],Yubins[15-YuDetector[0].ring+1]);
+            YuthetaM=DetAngle[YuDetector[0].sector][YuDetector[0].ring];
+            
+            //Randomization
+            /*double phiRand = ran->Uniform(phi[YuDetector[0].sector]-21,phi[YuDetector[0].sector]+21); //Each detector covers 42 degreees
+            double rRand = ran->Uniform(r[YuDetector[0].ring]-4.9375/2, r[YuDetector[0].ring]+4.9375/2); //Each ring has a width of 4.9375 mm
+            double x_yu = rRand*sin(phiRand);
+            double y_yu = rRand*cos(phiRand);
+            double x_target = 2;
+            double y_target = -2.6;
+            TVector3 vec1(0, 0, 0-Yuz);
+            TVector3 vec2(x_yu - x_target, y_yu - y_target, Yuz);
+            double angle = vec1.Angle(vec2);
+            YuthetaM=angle*180./M_PI;*/
+                
+			YuAngle->push_back(YuthetaM);
+            YuEnergyShift=YuDetector[0].energy-shift;
 							
-				//Adding the energy lost by the protons through the target and the deadlayers of the Yu detector (11/15/2018)  
+			//Adding the energy lost by the protons through the target and the deadlayers of the Yu detector (11/15/2018)  
 				
-				loss1=(-b[YuDetector[0].ring]-TMath::Sqrt(pow(b[YuDetector[0].ring],2)-4*(a[YuDetector[0].ring]-YuDetector[0].energy)*c[YuDetector[0].ring]))/(2*(a[YuDetector[0].ring]-YuDetector[0].energy));// Boron dead layer
-				loss2=(-e[YuDetector[0].ring]-TMath::Sqrt((e[YuDetector[0].ring]*e[YuDetector[0].ring])-4*(d[YuDetector[0].ring]-(YuDetector[0].energy+loss1))*f[YuDetector[0].ring]))/(2*(d[YuDetector[0].ring]-(YuDetector[0].energy+loss1)));// Aluminium dead layer
-				loss3=(-h[YuDetector[0].ring]-TMath::Sqrt((h[YuDetector[0].ring]*h[YuDetector[0].ring])-4*(g[YuDetector[0].ring]-(YuDetector[0].energy+loss1+loss2))*k[YuDetector[0].ring]))/(2*(g[YuDetector[0].ring]-(YuDetector[0].energy+loss1+loss2)));// Target
-				loss=loss1+loss2+loss3; //
+			// loss1=(-b[YuDetector[0].ring]-TMath::Sqrt(pow(b[YuDetector[0].ring],2)-4*(a[YuDetector[0].ring]-YuDetector[0].energy)*c[YuDetector[0].ring]))/(2*(a[YuDetector[0].ring]-YuDetector[0].energy));// Boron dead layer
+            // loss2=(-e[YuDetector[0].ring]-TMath::Sqrt((e[YuDetector[0].ring]*e[YuDetector[0].ring])-4*(d[YuDetector[0].ring]-(YuDetector[0].energy+loss1))*f[YuDetector[0].ring]))/(2*(d[YuDetector[0].ring]-(YuDetector[0].energy+loss1)));// Aluminium dead layer
+			// loss3=(-h[YuDetector[0].ring]-TMath::Sqrt((h[YuDetector[0].ring]*h[YuDetector[0].ring])-4*(g[YuDetector[0].ring]-(YuDetector[0].energy+loss1+loss2))*k[YuDetector[0].ring]))/(2*(g[YuDetector[0].ring]-(YuDetector[0].energy+loss1+loss2)));// Target
+			// loss=loss1+loss2+loss3; //
 				
-				//if(YuDetector[0].ring == 0) {
-				//	double newEnergy = protonEL->AddBack(YuEnergy->at(0) + loss1 + loss2, 30./1000./cos(YuAngleMap[YuDetector[0].ring]*M_PI/180.));
-					//std::cout << YuEnergy->at(0) + loss1 + loss2 << '\t' << YuEnergy->at(0) + loss1 + loss2 + loss3 << '\t' << newEnergy << std::endl;
-				//}
-				double YuEnergyLoss = protonEL->AddBack(YuEnergy->at(0) + loss1 + loss2, 30./1000./fabs(cos(YuthetaM*M_PI/180.)));
-				//YuEnergyLoss=YuDetector[0].energy+loss;
-				YuEnergyShift=YuEnergyLoss-shift;
-				//cout << ev_num << "	" << YuDetector[0].ring << "		" << YuEnergy->at ( 0 ) << loss1 << loss2 << loss3 << loss << endl;
-				hYuEn->Fill(YuEnergyLoss);
-				hYuEnT->Fill(YuDetector[0].energy+loss3);
-				hYuAn->Fill(YuthetaM,YuEnergyLoss);
-				hYuAnT->Fill(YuthetaM,YuDetector[0].energy+loss3);
-				//if(ICEnergyRaw>620 && ICEnergyRaw<1100){
-					hYuAnIC->Fill(YuthetaM,YuEnergyLoss);
-					hYuAnICT->Fill(YuthetaM,YuDetector[0].energy+loss3);
-					hYuEnIC->Fill(YuEnergyLoss);
-					
-				
-					//if(pidcut->IsInside(Sd2rDetector[0].energy,Sd1rDetector[0].energy) && ICEnergyRaw>620 && ICEnergyRaw<1100 ){
-						hYuEnPID->Fill(YuEnergyLoss);
-						hYuAnPID->Fill(YuthetaM,YuEnergyShift);
-						hYuAnPIDT->Fill(YuthetaM,YuDetector[0].energy+loss3);
-						hYuAnPIDSec[YuDetector[0].sector]->Fill(YuthetaM,YuEnergyShift);
-						hYuAnPIDRing[YuDetector[0].ring]->Fill(YuDetector[0].sector,YuEnergyShift);
-						Qval = ( 1+mejec/mrecoil ) * ( YuEnergyShift) - ( 1 - mbeam/mrecoil ) * ( kBeam ) - 2 * TMath::Sqrt ( mbeam*mejec* ( YuEnergyShift) * ( kBeam ) ) / mrecoil * TMath::Cos ( YuthetaM * TMath::Pi() / 180. );
-						hQval->Fill ( Qval );
-						hQvalAn->Fill(YuthetaM,Qval);
-						QvalT = ( 1+mejec/mrecoil ) * ( YuDetector[0].energy+loss3) - ( 1 - mbeam/mrecoil ) * ( kBeam ) - 2 * TMath::Sqrt ( mbeam*mejec* ( YuDetector[0].energy+loss3) * ( kBeam ) ) / mrecoil * TMath::Cos ( YuthetaM * TMath::Pi() / 180. );
-						hQvalT->Fill ( QvalT);
-						hQvalAnT->Fill(YuthetaM,QvalT);
+			//if(YuDetector[0].ring == 0) {
+				//double newEnergy = protonEL->AddBack(YuEnergy->at(0) + loss1 + loss2, 30./1000./cos(YuAngleMap[YuDetector[0].ring]*M_PI/180.));
+				//std::cout << YuEnergy->at(0) + loss1 + loss2 << '\t' << YuEnergy->at(0) + loss1 + loss2 + loss3 << '\t' << newEnergy << std::endl;
+			//}
+            double DThickness = ran->Uniform(0,60.78992);
+            double YuEnergyLoss = protonELB->AddBack(YuEnergyShift, 5e-5/fabs(cos(YuthetaM*M_PI/180.)));
+            YuEnergyLoss = protonELA->AddBack(YuEnergyLoss, 1e-4/fabs(cos(YuthetaM*M_PI/180.)));
+			YuEnergyLoss = protonELD->AddBack(YuEnergyLoss, 30./1000./fabs(cos(YuthetaM*M_PI/180.)));//
+			//YuEnergyLoss=YuDetector[0].energy+loss;
+			//cout << ev_num << "	" << YuDetector[0].ring << "		" << YuEnergy->at ( 0 ) << loss1 << loss2 << loss3 << loss << endl;
+			hYuEn->Fill(YuEnergyLoss);
+			//hYuEnT->Fill(YuDetector[0].energy+loss3);
+			hYuAn->Fill(YuthetaM,YuEnergyLoss);
+			//hYuAnT->Fill(YuthetaM,YuDetector[0].energy+loss3);
+			hYuAnIC->Fill(YuthetaM,YuEnergyLoss);
+			//hYuAnICT->Fill(YuthetaM,YuDetector[0].energy+loss3);
+			hYuEnIC->Fill(YuEnergyLoss);
+			hYuEnPID->Fill(YuEnergyLoss);
+			hYuAnPID->Fill(YuthetaM,YuEnergyLoss);
+			//hYuAnPIDT->Fill(YuthetaM,YuDetector[0].energy+loss3);
+			hYuAnPIDSec[YuDetector[0].sector]->Fill(YuthetaM,YuEnergyLoss);
+			hYuAnPIDRing[YuDetector[0].ring]->Fill(YuDetector[0].sector,YuEnergyLoss);
+			Qval = ( 1+mejec/mrecoil ) * ( YuEnergyLoss) - ( 1 - mbeam/mrecoil ) * ( kBeam ) - 2 * TMath::Sqrt ( mbeam*mejec* ( YuEnergyLoss) * ( kBeam ) ) / mrecoil * TMath::Cos ( YuthetaM * TMath::Pi() / 180. );
+			hQval->Fill ( Qval );
+			hQvalAn->Fill(YuthetaM,Qval);
+			//QvalT = ( 1+mejec/mrecoil ) * ( YuDetector[0].energy+loss3) - ( 1 - mbeam/mrecoil ) * ( kBeam ) - 2 * TMath::Sqrt ( mbeam*mejec* ( YuDetector[0].energy+loss3) * ( kBeam ) ) / mrecoil * TMath::Cos ( YuthetaM * TMath::Pi() / 180. );
+            //std::cout << YuDetector[0].ring << '\t' << YuthetaM << std::endl;
+			//hQvalT->Fill ( QvalT);
+			//hQvalAnT->Fill(YuthetaM,QvalT);
 						
-						//Four sectors; left and right
-						if(YuDetector[0].channel>=64 && YuDetector[0].channel<128){
-							hYuAnPIDLeft->Fill(YuthetaM,YuEnergyShift);
-							hQvalLeft->Fill ( Qval );
-						}
-						else if(YuDetector[0].channel<64){
-							hYuAnPIDRight->Fill(YuthetaM,YuEnergyShift);
-							hQvalRight->Fill ( Qval );
-						}
-						
-						//Four sectors; top and bottom
-						if(YuDetector[0].channel<32 || YuDetector[0].channel>=96){
-							hYuAnPIDTop->Fill(YuthetaM,YuEnergyShift);
-							hQvalTop->Fill ( Qval );
-						}
-						else if(YuDetector[0].channel>=32 && YuDetector[0].channel<96){
-							hYuAnPIDBottom->Fill(YuthetaM,YuEnergyShift);
-							hQvalBottom->Fill ( Qval );
-						}
-						
-						//Adjacent sectors; first configuration
-						if(YuDetector[0].channel>=112 || YuDetector[0].channel<16){
-							hYuAnPID315_45->Fill(YuthetaM,YuEnergyShift);
-							hQval315_45->Fill ( Qval );
-						}
-						else if(YuDetector[0].channel>=16 && YuDetector[0].channel<48){
-							hYuAnPID45_135->Fill(YuthetaM,YuEnergyShift);
-							hQval45_135->Fill ( Qval );
-						}
-						else if(YuDetector[0].channel>=48 && YuDetector[0].channel<80){
-							hYuAnPID135_225->Fill(YuthetaM,YuEnergyShift);
-							hQval135_225->Fill ( Qval );
-						}
-						else if(YuDetector[0].channel>=80 && YuDetector[0].channel<112){
-							hYuAnPID225_315->Fill(YuthetaM,YuEnergyShift);
-							hQval225_315->Fill ( Qval );
-						}
-						
-						//Adjacent sectors; second configuration
-						if(YuDetector[0].channel<32){
-							hYuAnPID0_90->Fill(YuthetaM,YuEnergyShift);
-							hQval0_90->Fill ( Qval );
-						}
-						else if(YuDetector[0].channel>=32 && YuDetector[0].channel<64){
-							hYuAnPID90_180->Fill(YuthetaM,YuEnergyShift);
-							hQval90_180->Fill ( Qval );
-						}
-						else if(YuDetector[0].channel>=64 && YuDetector[0].channel<96){
-							hYuAnPID180_270->Fill(YuthetaM,YuEnergyShift);
-							hQval180_270->Fill ( Qval );
-						}
-						else if(YuDetector[0].channel>=96){
-							hYuAnPID270_360->Fill(YuthetaM,YuEnergyShift);
-							hQval270_360->Fill ( Qval );
-						}
-						
-						//Rings in groups of 4
-						if(YuDetector[0].ring<4){
-							hYuAnPIDR0_3->Fill(YuthetaM,YuEnergyShift);
-							hQvalR0_3->Fill ( Qval );
-						}
-						else if(YuDetector[0].ring>=4 && YuDetector[0].ring<8){
-							hYuAnPIDR4_7->Fill(YuthetaM,YuEnergyShift);
-							hQvalR4_7->Fill ( Qval );
-						}
-						else if(YuDetector[0].ring>=8 && YuDetector[0].ring<12){
-							hYuAnPIDR8_11->Fill(YuthetaM,YuEnergyShift);
-							hQvalR8_11->Fill ( Qval );
-						}
-						else if(YuDetector[0].ring>=12){
-							hYuAnPIDR12_15->Fill(YuthetaM,YuEnergyShift);
-							hQvalR12_15->Fill ( Qval );
-						}
-
-				// Without the energy loss through the target and the dead layers
-				hYuAn1->Fill(YuthetaM,YuDetector[0].energy); //all, no cuts
-				if(ICEnergyRaw>1500 && ICEnergyRaw<2200){
-				//if(ICEnergyRaw>620 && ICEnergyRaw<1100){
-					hYuAnIC1->Fill(YuthetaM,YuEnergy->at (0));
-					hYuEnIC1->Fill(YuEnergy->at (0));
-				} //IC gate for C 1500 < E < 2200; for Be 620< E < 1100
-				hYuEn1->Fill(YuDetector[0].energy);
-				hYuMul->Fill(YuMul);
-				
-					//if (pidcut->IsInside(Sd2rDetector[0].energy,Sd1rDetector[0].energy ) && ICEnergyRaw>620 && ICEnergyRaw<1100 ){
-						hYuAnPID1->Fill ( YuthetaM,YuDetector[0].energy );
-						Qval1 = ( 1+mejec/mrecoil ) * ( YuDetector[0].energy ) - ( 1 - mbeam/mrecoil ) * ( kBeam ) - 2 * TMath::Sqrt ( mbeam*mejec* ( YuDetector[0].energy ) * ( kBeam ) ) / mrecoil * TMath::Cos ( YuthetaM * TMath::Pi() / 180. );
-						hQval1->Fill ( Qval1 );
+			//Four sectors; left and right
+			if(YuDetector[0].channel>=64 && YuDetector[0].channel<128){
+				hYuAnPIDLeft->Fill(YuthetaM,YuEnergyLoss);
+				hQvalLeft->Fill ( Qval );
 			}
+			else if(YuDetector[0].channel<64){
+				hYuAnPIDRight->Fill(YuthetaM,YuEnergyLoss);
+				hQvalRight->Fill ( Qval );
+			}
+						
+			//Four sectors; top and bottom
+			if(YuDetector[0].channel<32 || YuDetector[0].channel>=96){
+				hYuAnPIDTop->Fill(YuthetaM,YuEnergyLoss);
+				hQvalTop->Fill ( Qval );
+			}
+			else if(YuDetector[0].channel>=32 && YuDetector[0].channel<96){
+				hYuAnPIDBottom->Fill(YuthetaM,YuEnergyLoss);
+				hQvalBottom->Fill ( Qval );
+			}
+						
+			//Adjacent sectors; first configuration
+			if(YuDetector[0].channel>=112 || YuDetector[0].channel<16){
+				hYuAnPID315_45->Fill(YuthetaM,YuEnergyLoss);
+				hQval315_45->Fill ( Qval );
+			}
+			else if(YuDetector[0].channel>=16 && YuDetector[0].channel<48){
+				hYuAnPID45_135->Fill(YuthetaM,YuEnergyLoss);
+				hQval45_135->Fill ( Qval );
+			}
+			else if(YuDetector[0].channel>=48 && YuDetector[0].channel<80){
+				hYuAnPID135_225->Fill(YuthetaM,YuEnergyLoss);
+				hQval135_225->Fill ( Qval );
+			}
+			else if(YuDetector[0].channel>=80 && YuDetector[0].channel<112){
+				hYuAnPID225_315->Fill(YuthetaM,YuEnergyLoss);
+				hQval225_315->Fill ( Qval );
+			}
+						
+			//Adjacent sectors; second configuration
+			if(YuDetector[0].channel<32){
+				hYuAnPID0_90->Fill(YuthetaM,YuEnergyLoss);
+				hQval0_90->Fill ( Qval );
+			}
+			else if(YuDetector[0].channel>=32 && YuDetector[0].channel<64){
+				hYuAnPID90_180->Fill(YuthetaM,YuEnergyLoss);
+				hQval90_180->Fill ( Qval );
+			}
+			else if(YuDetector[0].channel>=64 && YuDetector[0].channel<96){
+				hYuAnPID180_270->Fill(YuthetaM,YuEnergyLoss);
+				hQval180_270->Fill ( Qval );
+			}
+			else if(YuDetector[0].channel>=96){
+				hYuAnPID270_360->Fill(YuthetaM,YuEnergyLoss);
+				hQval270_360->Fill ( Qval );
+			}
+			
+			if(YuDetector[0].ring<4){
+                //hYuAnPIDRs0_3->Fill(YuthetaM,YuEnergyLoss);
+                hQvalRs0_3->Fill ( Qval );
+            }else if(YuDetector[0].ring>=4 && YuDetector[0].ring<8){
+                //hYuAnPIDRs0_3->Fill(YuthetaM,YuEnergyLoss);
+                hQvalRs4_7->Fill ( Qval );
+            }else if(YuDetector[0].ring>=8 && YuDetector[0].ring<12){
+                hQvalRs8_11->Fill ( Qval );
+            }else{
+                hQvalRs12_15->Fill ( Qval );
+            }
+			
+        
+            hQvalR[YuDetector[0].ring]->Fill ( Qval );
+            hQvalS[YuDetector[0].sector]->Fill ( Qval );
+
+                
+					
+			//Rings in groups of 8
+			if(YuDetector[0].ring<8){
+                hYuAnPIDRs0_7->Fill(YuthetaM,YuEnergyLoss);
+                hQvalRs0_7->Fill ( Qval );
+                for(int i=0; i<8; i++){
+                    if(YuDetector[0].ring != i){
+                        hYuAnPIDR0_7[i]->Fill(YuthetaM,YuEnergyLoss);
+                        hQvalR0_7[i]->Fill ( Qval );
+                    }
+                }
+            }else if(YuDetector[0].ring>=8){
+                hYuAnPIDRs8_15->Fill(YuthetaM,YuEnergyLoss);
+                hQvalRs8_15->Fill ( Qval );
+                for(int i=8; i<16; i++){
+                    if(YuDetector[0].ring != i){
+                        hYuAnPIDR8_15[i-8]->Fill(YuthetaM,YuEnergyLoss);
+                        hQvalR8_15[i-8]->Fill ( Qval );
+                    }
+                }
+			}
+			
+            if(YuDetector[0].ring>=4 && YuDetector[0].ring<12){
+                //hYuAnPIDRs4_12->Fill(YuthetaM,YuEnergyLoss);
+                hQvalRs4_12->Fill ( Qval );
+            }else if(YuDetector[0].ring<4 || YuDetector[0].ring>=12){
+               //hYuAnPIDRs12_4->Fill(YuthetaM,YuEnergyLoss);
+                hQvalRs12_4->Fill ( Qval );
+            }
+
+			// Without the energy loss through the target and the dead layers
+			hYuAn1->Fill(YuthetaM,YuDetector[0].energy); //all, no cuts
+			hYuAnIC1->Fill(YuthetaM,YuEnergy->at (0));
+			hYuEnIC1->Fill(YuEnergy->at (0));
+			hYuEn1->Fill(YuDetector[0].energy);
+			hYuMul->Fill(YuMul);
+	
+			hYuAnPID1->Fill ( YuthetaM,YuDetector[0].energy );
+			Qval1 = ( 1+mejec/mrecoil ) * ( YuDetector[0].energy ) - ( 1 - mbeam/mrecoil ) * ( kBeam ) - 2 * TMath::Sqrt ( mbeam*mejec* ( YuDetector[0].energy ) * ( kBeam ) ) / mrecoil * TMath::Cos ( YuthetaM * TMath::Pi() / 180. );
+			hQval1->Fill ( Qval1 );
 		} 
 		
 	} //end of the main while loop
@@ -755,10 +865,10 @@ double yuAnalysis(){
 	hYuAnPID90_180->Write();
 	hYuAnPID180_270->Write();
 	hYuAnPID270_360->Write();
-	hYuAnPIDR0_3->Write();
-	hYuAnPIDR4_7->Write();
-	hYuAnPIDR8_11->Write();
-	hYuAnPIDR12_15->Write();
+	hYuAnPIDRs0_7->Write();
+	//hYuAnPIDR4_7->Write();
+	//hYuAnPIDR8_11->Write();
+	hYuAnPIDRs8_15->Write();
 	hYuEn->Write();
 	hYuEnT->Write();
 	hYuEnIC->Write();
@@ -781,19 +891,34 @@ double yuAnalysis(){
 	hQval90_180->Write();
 	hQval180_270->Write();
 	hQval270_360->Write();
-	hQvalR0_3->Write();
-	hQvalR4_7->Write();
-	hQvalR8_11->Write();
-	hQvalR12_15->Write();
+	hQvalRs0_7->Write();
+    
+    hQvalRs0_3->Write();
+	hQvalRs4_7->Write();
+	hQvalRs8_11->Write();
+    hQvalRs12_15->Write();
+    
+    
+	hQvalRs8_15->Write();
+    hQvalRs4_12->Write();
+    hQvalRs12_4->Write();
 	hQvalAn->Write();
 	hQvalAnT->Write();
 	hYuEnM->Write();
 	hYuEnMICPID->Write();
 	for(int i=0; i<8; i++){hYuAnPIDSec[i]->Write();}
 	for(int i=0; i<16; i++){hYuAnPIDRing[i]->Write();}
+	for(int i=0; i<8; i++){
+        hYuAnPIDR0_7[i]->Write();
+        hYuAnPIDR8_15[i]->Write();
+        hQvalR0_7[i]->Write();
+        hQvalR8_15[i]->Write();
+    }
+    for(int i=0; i<16; i++){hQvalR[i]->Write();}
+    for(int i=0; i<8; i++){hQvalS[i]->Write();}
 	
 	f_out->Close();
 	
-	return 0;
+	return -Yuz;
 	
 } //end of the program

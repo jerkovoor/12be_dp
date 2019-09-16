@@ -184,7 +184,7 @@ double decode ( int run_num)
     //open the output file
  
     //string fOut_name = Form ( "/home/jerome/12Be_exp/Processed_files/Yd_calibration/rootindpndt_loss_%i_%d.root",run_num,index ); 
-    string fOut_name = Form ( "/home/jerome/12Be_exp/Processed_files/Yd_calibration/rootindpndt5225_loss_test_%i.root",run_num); 
+    string fOut_name = Form ( "/home/jerome/12Be_exp/Processed_files/Yd_calibration/rootindpndt_loss_decodetest_%i.root",run_num); 
     TFile* f_out = new TFile ( fOut_name.c_str(),"RECREATE" );
     TTree* tr_out = new TTree ( "AutoTree","AutoTree" );
 

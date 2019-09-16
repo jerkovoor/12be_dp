@@ -46,13 +46,20 @@ struct sortByEnergyS3 {
 };
 
 
-double QvalAnalysis(){
+double AnalysisBeamOffset(){
 	//open the output file
-	TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/CarbonGain/C_pedestal_TRIUMF_DL2_CarbonGain_Yu_RandomAngle_TargetDistance80_87mm.root","RECREATE"); //change the path and name accordingly
-    //TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/CarbonGain/C_pedestal_Micron_DL_CarbonGain_Yu_RandomAngle_TargetDistance80_88mm.root","RECREATE"); //change the path and name accordingly
+	TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/C_pedestal_TRIUMF_DL_BeamOffset_2.root","RECREATE"); //change the path and name accordingly
   
 	//Open the input files
 	TChain *chain = new TChain ( "AutoTree" ); //chain the desired input files
+    
+    EnergyLoss* protonELB = new EnergyLoss("Proton_Boron.dat");
+    EnergyLoss* protonELA = new EnergyLoss("Proton_Aluminum.dat");
+	EnergyLoss* protonELD = new EnergyLoss("Proton_DeuteriumTarget.dat");
+    
+    protonELB->AddBackHigh(15.);
+    protonELA->AddBackHigh(15.);
+    protonELD->AddBackHigh(15.);
 	
 	//Carbon data with target
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5001.root" ); //change the path to the files and the file name accordingly
@@ -372,35 +379,82 @@ double QvalAnalysis(){
 		}
 	}
 	
-	
-	double shiftInitial=-0.12;
-    double shiftFinal=-0.06;
-    double interval=0.005;
-    int shiftLength=1+(shiftFinal-shiftInitial)/interval;
-	double shift[shiftLength];
-	TH2D *hYuAnPID[shiftLength];
-	TH1D *hQval[shiftLength];
-	for(int i=0;i<shiftLength;i++){
-        shift[i]=shiftInitial+interval*i;
-		string namehYuAnPID = Form("hYuAnPID_%i",i);
-		hYuAnPID[i] = new TH2D(namehYuAnPID.c_str(),Form("YuE vs Angle with an IC and PID gate_%.2f",shift[i]),16,Yubins,6000,0,6);//240,0,2.4
-		string namehQval = Form("hQval_%i",i);
-		hQval[i] = new TH1D(namehQval.c_str(),Form("Q values_%.2f",shift[i]),400,-10,10);//240,0,2.4
+	double A, B;
+
+	double OffsetInitialx=-1;
+    double OffsetFinalx=1;
+    double OffsetInitialy=0;
+    double OffsetFinaly=-1;
+    double interval=0.2;
+    int OffsetLengthx=1+(OffsetFinalx-OffsetInitialx)/interval;
+    int OffsetLengthy=1+fabs(OffsetFinaly-OffsetInitialy)/interval;
+    int Length=OffsetLengthx*OffsetLengthy;
+    
+    double x[OffsetLengthx], y[OffsetLengthy];
+    
+    for (int i=0;i<OffsetLengthx;i++){
+        x[i]=OffsetInitialx+i*interval;
+    }
+    
+    for (int i=0;i<OffsetLengthy;i++){
+        y[i]=OffsetInitialy+i*interval;
+    }
+    
+    double phi[8], r[16], R[8][16][OffsetLengthx][OffsetLengthy], DetAngle[8][16][OffsetLengthx][OffsetLengthy];
+    phi[0]=22.5;
+    for (int i=1;i<8;i++){
+        phi[i]=phi[0]+45*i;
+        //cout << phi[i] << endl;
+    }
+    
+    for (int i=0;i<16;i++){
+        r[i]=50+((129.-50.)/16)*(0.5+i);
+        //cout << r[i] << endl;
+    }
+    
+    //Offsetting the beam
+        for (int xindex=0;xindex<OffsetLengthx;xindex++){
+            for (int yindex=0;yindex<OffsetLengthy;yindex++){
+                //Calculating the angles
+                for (int i=0;i<8;i++){
+                    for (int j=0;j<16;j++){
+                        A=r[j]*TMath::Sin(phi[i]);
+                        B=r[j]*TMath::Cos(phi[i]);
+                        R[i][j][xindex][yindex]=TMath::Sqrt(pow((x[xindex]-A),2)+pow((y[yindex]-B),2));
+                        DetAngle[i][j][xindex][yindex]=180-TMath::RadToDeg()*TMath::ATan(R[i][j][xindex][yindex]/85);
+                        //cout << DetAngle[i][j][xindex][yindex] << endl;
+                    }
+                }
+            }
+        }
+
+        
+
+	TH2D *hYuAnPID[Length];
+	TH1D *hQval[Length];
+	for(int i=0;i<OffsetLengthx;i++){
+        for(int j=0;j<OffsetLengthy;j++){
+		//string namehYuAnPID = Form("hYuAnPID_%i",i);
+		//hYuAnPID[i] = new TH2D(namehYuAnPID.c_str(),"YuE vs Angle with an IC and PID gate",16,Yubins,6000,0,6);//240,0,2.4
+		string namehQval = Form("hQval_%i",i*OffsetLengthy+j);
+		hQval[i*OffsetLengthy+j] = new TH1D(namehQval.c_str(),"Q values",160,-4,4);//240,0,2.4
+        }
 	}
+	
 	double YuEnergyLoss, YuEnergyShift;
-	TF1* fit_func1 = new TF1 ( "fit_func1","[0]*TMath::Exp(-pow((x-[1]),2)/(2*[2]*[2]))",-10,10);
+	//TF1* fit_func1 = new TF1 ( "fit_func1","[0]*TMath::Exp(-pow((x-[1]),2)/(2*[2]*[2]))",-10,10);
 	int seed = 123;
 	TRandom3* ran = new TRandom3(seed);
 
-	
+	double shift=0.154;//0.0924;
 	
 	////////////////////////////////
 	// Event by event starts here //
 	////////////////////////////////
 	
 			
-	while(ev_num<=ev){
-		if ( ev_num%10000==0 ) cout << "Current event = " << ev_num << "\r"<< flush;
+	for(int ev_num = 0; ev_num < ev; ev_num++) {
+		if ( ev_num%50000==0 ) cout << "Current event = " << ev_num << "\r"<< flush;
 		chain->GetEntry ( ev_num ); //get the current entry
 		
 		//Defining a structure YuDetector
@@ -425,6 +479,10 @@ double QvalAnalysis(){
 			Sd2rDetector.push_back(hit);
 		}
 		
+		if(Sd1rDetector.empty() || Sd2rDetector.empty()) continue;
+		if(YuDetector.empty()) continue;
+		if(!pidcut->IsInside(Sd2rDetector[0].energy,Sd1rDetector[0].energy) || ICEnergyRaw<1500 || ICEnergyRaw>2200) continue;
+		
 		//Sorting Yu
 		if(!YuDetector.empty()){
 			std::sort(YuDetector.begin(),YuDetector.end(),
@@ -445,74 +503,42 @@ double QvalAnalysis(){
 		
 		
 		//fill in the Yu detector
-		if(YuDetector.size()>0){
-			//if (YuDetector[0].energy>0.20 && ( YuChannel->at(0)!=82 && YuChannel->at(0)!=96 && YuChannel->at(0)!=106 && YuChannel->at(0)!=111 ))
-			if (YuDetector[0].energy>0.1){
-				//calculate the angles for the Yu detector
-				yuM = Ydr0+ ( YuDetector[0].ring*YChWidth )+YChMiddle;
-				TVector3 YuposM ( 0,yuM,Yuz); //shifting the detecor
-				YuposM.SetPhi ( TMath::Pi() /2-YuDetector[0].sector *TMath::Pi() /4 ); //Pi/2 because the center of the sector is at 90degrees, Pi/4 is because there is 8 sectors so it is 2Pi/8
-				YuthetaM = beam.Angle ( YuposM ) *TMath::RadToDeg();
-				YuthetaR=ran->Uniform(Yubins[15-YuDetector[0].ring],Yubins[15-YuDetector[0].ring+1]);
-				YuAngle->push_back(YuthetaR);
-				//cout << ev_num << "		" << YuDetector[0].ring << "		" << YuthetaM << "		" << YuthetaR <<endl;
+        if (YuDetector[0].energy>1){
+            //calculate the angles for the Yu detector
+            //yuM = Ydr0+ ( YuDetector[0].ring*YChWidth )+YChMiddle;
+            //TVector3 YuposM ( 0,yuM,Yuz); //shifting the detecor
+            //YuposM.SetPhi ( TMath::Pi() /2-YuDetector[0].sector *TMath::Pi() /4 ); //Pi/2 because the center of the sector is at 90degrees, Pi/4 is because there is 8 sectors so it is 2Pi/8
+            //YuthetaM = beam.Angle ( YuposM ) *TMath::RadToDeg();
+            //YuthetaM=ran->Uniform(Yubins[15-YuDetector[0].ring],Yubins[15-YuDetector[0].ring+1]);
+        
+            YuEnergyShift=YuDetector[0].energy-shift;
+            //Adding the energy lost by the protons through the target and the deadlayers of the Yu detector (11/15/2018)  
+            /*loss1=(-b[YuDetector[0].ring]-TMath::Sqrt(pow(b[YuDetector[0].ring],2)-4*(a[YuDetector[0].ring]-YuEnergyShift)*c[YuDetector[0].ring]))/(2*(a[YuDetector[0].ring]-YuEnergyShift));// Boron dead layer
+            loss2=(-e[YuDetector[0].ring]-TMath::Sqrt((e[YuDetector[0].ring]*e[YuDetector[0].ring])-4*(d[YuDetector[0].ring]-(YuEnergyShift+loss1))*f[YuDetector[0].ring]))/(2*(d[YuDetector[0].ring]-(YuEnergyShift+loss1)));// Aluminium dead layer
+            loss3=(-h[YuDetector[0].ring]-TMath::Sqrt((h[YuDetector[0].ring]*h[YuDetector[0].ring])-4*(g[YuDetector[0].ring]-(YuEnergyShift+loss1+loss2))*k[YuDetector[0].ring]))/(2*(g[YuDetector[0].ring]-(YuEnergyShift+loss1+loss2)));// Target
+            loss=loss1+loss2+loss3; //
+            YuEnergyLoss=YuEnergyShift+loss;*/
                 
-				for(int shiftNumber=0;shiftNumber<shiftLength;shiftNumber++){
-					if(Sd2rDetector.size()>0 && Sd1rDetector.size()>0){
-						if(pidcut->IsInside(Sd2rDetector[0].energy,Sd1rDetector[0].energy) && ICEnergyRaw>1500 && ICEnergyRaw<2200 ){
-						//if(pidcut->IsInside(Sd2rDetector[0].energy,Sd1rDetector[0].energy) && ICEnergyRaw>620 && ICEnergyRaw<1100 ){
-                            YuEnergyShift=YuDetector[0].energy+shift[shiftNumber];
-                            //Adding the energy lost by the protons through the target and the deadlayers of the Yu detector (11/15/2018)  
-                            loss1=(-b[YuDetector[0].ring]-TMath::Sqrt(pow(b[YuDetector[0].ring],2)-4*(a[YuDetector[0].ring]-YuEnergyShift)*c[YuDetector[0].ring]))/(2*(a[YuDetector[0].ring]-YuEnergyShift));// Boron dead layer
-                            loss2=(-e[YuDetector[0].ring]-TMath::Sqrt((e[YuDetector[0].ring]*e[YuDetector[0].ring])-4*(d[YuDetector[0].ring]-(YuEnergyShift+loss1))*f[YuDetector[0].ring]))/(2*(d[YuDetector[0].ring]-(YuEnergyShift+loss1)));// Aluminium dead layer
-                            loss3=(-h[YuDetector[0].ring]-TMath::Sqrt((h[YuDetector[0].ring]*h[YuDetector[0].ring])-4*(g[YuDetector[0].ring]-(YuEnergyShift+loss1+loss2))*k[YuDetector[0].ring]))/(2*(g[YuDetector[0].ring]-(YuEnergyShift+loss1+loss2)));// Target
-                            loss=loss1+loss2+loss3; //
-                            //cout << ev_num << "	" << YuDetector[0].ring << "		" << YuEnergy->at ( 0 ) << loss1 << loss2 << loss3 << loss << endl;
-                            YuEnergyLoss=YuEnergyShift+loss;
-							hYuAnPID[shiftNumber]->Fill(YuthetaR,YuEnergyLoss);
-							Qval = ( 1+mejec/mrecoil ) * ( YuEnergyLoss) - ( 1 - mbeam/mrecoil ) * ( kBeam ) - 2 * TMath::Sqrt ( mbeam*mejec* ( YuEnergyLoss) * ( kBeam ) ) / mrecoil * TMath::Cos ( YuthetaR * TMath::Pi() / 180. );
-							hQval[shiftNumber]->Fill ( Qval );
-						}	
-					}
-				}
-			}
-		} 
-		
-		/*if(YuChannel->size()>0){
-			//if (YuDetector[0].energy>0.20 && ( YuChannel->at(0)!=82 && YuChannel->at(0)!=96 && YuChannel->at(0)!=106 && YuChannel->at(0)!=111 ))
-			if (YuEnergy->at(0)>0.1){
-				//calculate the angles for the Yu detector
-				yuM = Ydr0+ ( YuRing->at(0)*YChWidth )+YChMiddle;
-				TVector3 YuposM ( 0,yuM,Yuz); //shifting the detecor
-				YuposM.SetPhi ( TMath::Pi() /2-YuSector->at(0) *TMath::Pi() /4 ); //Pi/2 because the center of the sector is at 90degrees, Pi/4 is because there is 8 sectors so it is 2Pi/8
-				YuthetaM = beam.Angle ( YuposM ) *TMath::RadToDeg();
-				YuthetaR=ran->Uniform(Yubins[15-YuRing->at(0)],Yubins[15-YuRing->at(0)+1]);
-				YuAngle->push_back(YuthetaR);
-				//cout << ev_num << "		" << YuRing->at(0) << "		" << YuthetaM << "		" << YuthetaR <<endl;
-							
-				//Adding the energy lost by the protons through the target and the deadlayers of the Yu detector (11/15/2018)  
 
-	
-				loss1=(-b[YuRing->at(0)]-TMath::Sqrt(pow(b[YuRing->at(0)],2)-4*(a[YuRing->at(0)]-YuEnergy->at(0))*c[YuRing->at(0)]))/(2*(a[YuRing->at(0)]-YuEnergy->at(0)));// Boron dead layer
-				loss2=(-e[YuRing->at(0)]-TMath::Sqrt((e[YuRing->at(0)]*e[YuRing->at(0)])-4*(d[YuRing->at(0)]-(YuEnergy->at(0)+loss1))*f[YuRing->at(0)]))/(2*(d[YuRing->at(0)]-(YuEnergy->at(0)+loss1)));// Aluminium dead layer
-				loss3=(-h[YuRing->at(0)]-TMath::Sqrt((h[YuRing->at(0)]*h[YuRing->at(0)])-4*(g[YuRing->at(0)]-(YuEnergy->at(0)+loss1+loss2))*k[YuRing->at(0)]))/(2*(g[YuRing->at(0)]-(YuEnergy->at(0)+loss1+loss2)));// Target
-				loss=loss1+loss2+loss3; //
-				//cout << ev_num << "	" << YuRing->at(0) << "		" << YuEnergy->at ( 0 ) << loss1 << loss2 << loss3 << loss << endl;
-							
-				for(int shiftNumber=0;shiftNumber<shiftLength;shiftNumber++){
-					if(Sd2rEnergy->size()>0 && Sd1rEnergy->size()>0){
-						if(pidcut->IsInside(Sd2rEnergyRaw->at(0),Sd1rEnergyRaw->at(0)) && ICEnergyRaw>1500 && ICEnergyRaw<2200 ){
-						//if(pidcut->IsInside(Sd2rEnergy->at(0),Sd1rEnergy->at(0)) && ICEnergyRaw>620 && ICEnergyRaw<1100 ){
-							hYuAnPID[shiftNumber]->Fill(YuthetaR,YuEnergy->at(0)+loss+shift[shiftNumber]);
-							Qval = ( 1+mejec/mrecoil ) * ( YuEnergy->at(0)+loss+shift[shiftNumber]) - ( 1 - mbeam/mrecoil ) * ( kBeam ) - 2 * TMath::Sqrt ( mbeam*mejec* ( YuEnergy->at(0)+loss+shift[shiftNumber]) * ( kBeam ) ) / mrecoil * TMath::Cos ( YuthetaR * TMath::Pi() / 180. );
-							hQval[shiftNumber]->Fill ( Qval );
-						}	
-					}
-				}
-			}
-		} */
-		ev_num++;
-	} //end of the main while loop
+            //Offsetting the beam
+            for (int xindex=0;xindex<OffsetLengthx;xindex++){
+                for (int yindex=0;yindex<OffsetLengthy;yindex++){
+                    //Calculating the angles
+                    YuthetaM=DetAngle[YuDetector[0].sector][YuDetector[0].ring][xindex][yindex];
+                    //cout << ev_num << "		" << YuDetector[0].ring << "		" << YuthetaM << "		" << YuthetaM <<endl;
+
+                    //if(pidcut->IsInside(Sd2rDetector[0].energy,Sd1rDetector[0].energy) && ICEnergyRaw>620 && ICEnergyRaw<1100 ){
+                    double YuEnergyLoss = protonELB->AddBack(YuEnergyShift, 5e-5/fabs(cos(YuthetaM*M_PI/180.)));
+                    YuEnergyLoss = protonELA->AddBack(YuEnergyLoss, 1e-4/fabs(cos(YuthetaM*M_PI/180.)));
+                    YuEnergyLoss = protonELD->AddBack(YuEnergyLoss, 30./1000./fabs(cos(YuthetaM*M_PI/180.)));
+                    Qval = ( 1+mejec/mrecoil ) * ( YuEnergyLoss) - ( 1 - mbeam/mrecoil ) * ( kBeam ) - 2 * TMath::Sqrt ( mbeam*mejec* ( YuEnergyLoss) * ( kBeam ) ) / mrecoil * TMath::Cos ( YuthetaM * TMath::Pi() / 180. );
+                    hQval[xindex*OffsetLengthy+yindex]->Fill ( Qval );
+                    //hQvalAn->Fill(YuthetaM,Qval);
+                }
+            }
+            YuAngle->push_back(YuthetaM);
+        }
+	} //end of the main for loop
     
   
 	YuAngle->clear();
@@ -521,18 +547,13 @@ double QvalAnalysis(){
     
 	//write the histograms in the output root file
 	
-	for(int i=0; i<shiftLength; i++){
-		hYuAnPID[i]->Write();
+	for(int i=0; i<Length; i++){
+		//hYuAnPID[i]->Write();
 		hQval[i]->Write();
 	}
 	
-	//hYuAnPID->Write();
-	
-	//hQval->Write();
-	
-	
 	f_out->Close();
 	
-	return -Yuz;
+	return 0;
 	
 } //end of the program
