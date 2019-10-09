@@ -103,9 +103,9 @@ double yuAnalysisBe(){
     //TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod_UnevenBinning_SolidAngle_n2.root","RECREATE"); //change the path and name accordingly
     //TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod_UnevenBinning_SolidAngle_n1_2_CutData_TargetFront.root","RECREATE");
     
-    //TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_target/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod_UnevenBinning_SolidAngle_n1_2_target_thickness_Sd1rAlphaCal_Sd2rNewInBeamCal.root","RECREATE");
+    TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_target/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod_UnevenBinning_SolidAngle_n1_2_target_thickness_Sd1rAlphaCal_Sd2rNewInBeamCal.root","RECREATE");
     
-    TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_noTarget/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod_UnevenBinning_SolidAngle_n1_2_noTarget_target_thickness_Sd1rAlphaCal_Sd2rNewInBeamCal.root","RECREATE");
+    //TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_noTarget/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod_UnevenBinning_SolidAngle_n1_2_noTarget_target_thickness_Sd1rAlphaCal_Sd2rNewInBeamCal.root","RECREATE");
     
 	//Open the input files
 	TChain *chain = new TChain ( "AutoTree" ); //chain the desired input files
@@ -119,7 +119,7 @@ double yuAnalysisBe(){
     protonELD->AddBackHigh(15.);
 	
 	//No target Be data
-	
+	/*
 	//chain->Add ("/home/jerome/12Be_exp/Analysis/Be_notarget/decodeBe_notarget_pedestal5018.root");
     //chain->Add ("/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_noTarget/decodeNewBe_noTarget_TDL_YuPedestal5018.root");
     chain->Add ("/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_noTarget/decodeNewBe_Sd1rAlphaCal_Sd2rNewInBeamCal_noTarget_TDL_YuPedestal5018.root");
@@ -138,14 +138,14 @@ double yuAnalysisBe(){
             chain->Add(f_name.c_str());
 		}
 	}
-	
+	*/
     
     
     //Be data with target
     
     //chain->Add("/home/jerome/12Be_exp/Analysis/BeCutData.root");
     
-    /*
+    
 	//First Half	
 	
 	for(int run_num=5021;run_num<5096;run_num++){
@@ -195,7 +195,7 @@ double yuAnalysisBe(){
 		}
 	}
 	
-	*/
+	
 	//define the input variables
 	//YYD detector
 	int YdMul;
@@ -454,7 +454,7 @@ double yuAnalysisBe(){
 	TCutG *pidcut = (TCutG*) f_cut->Get("BeCut_CalSd1rSd2rFull2");*/
     
     TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/Analysis/Be/cuts/BeCutIC.root"); //PID cut for Be
-	TCutG *pidcut = (TCutG*) f_cut->Get("BeCut_CalSd1rSd2rIC");
+	TCutG *pidcut = (TCutG*) f_cut->Get("BeCut_NewCalSd1rSd2r");
     
     /*TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/Analysis/Be/cuts/BeBlobIC.root"); //PID cut for Be
 	TCutG *pidcut = (TCutG*) f_cut->Get("BeBlob_CalSd1rSd2rIC");*/
@@ -795,7 +795,7 @@ double yuAnalysisBe(){
 		}
 		
 		//Sd1r vs Sd2r calibrated
-		/*if(Sd1rDetector.size()>0 && Sd2rDetector.size()>0 && Sd1rMul==1 && Sd2rMul==1){
+		if(Sd1rDetector.size()>0 && Sd2rDetector.size()>0 && Sd1rMul==1 && Sd2rMul==1){
 			hCSd1rSd2r->Fill(Sd2rDetector[0].energy,Sd1rDetector[0].energy); //Calibrated Sd1r vs Sd2r energy with no gates
 			if ( ICEnergyRaw>620 && ICEnergyRaw<1100){
 				hCSd1rSd2rIC->Fill ( Sd2rDetector[0].energy,Sd1rDetector[0].energy );  //Calibrated Sd1r vs Sd2r energy with IC gate
@@ -810,7 +810,7 @@ double yuAnalysisBe(){
 				} //end of Yd gates
 			} //end of IC gates
 		} //end of Sd1r vs Sd2r calibrated
-		*/
+		
         
         
         hCSd1rEn->Fill(Sd1rDetector[0].energy);
