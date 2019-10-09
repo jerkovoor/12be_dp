@@ -1,0 +1,17 @@
+{
+//========= Macro generated from object: CUTG/Graph
+//========= by ROOT version6.15/01
+   
+   TCutG *cutg = new TCutG("CUTG",6);
+   cutg->SetVarX("YuE vs Angle with a PID wide gate");
+   cutg->SetVarY("");
+   cutg->SetTitle("Graph");
+   cutg->SetFillStyle(1000);
+   cutg->SetPoint(0,133.014,4.31973);
+   cutg->SetPoint(1,142.369,3.72449);
+   cutg->SetPoint(2,141.53,2.57653);
+   cutg->SetPoint(3,132.434,3.08673);
+   cutg->SetPoint(4,132.885,4.53231);
+   cutg->SetPoint(5,133.014,4.31973);
+   cutg->Draw("cut");
+}

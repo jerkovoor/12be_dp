@@ -1,0 +1,1 @@
+/usr/bin/c++   -std=c++11 -O3   CMakeFiles/reduce.dir/Reduce.C.o  -o reduce  -L/opt/root/lib -Wl,-rpath,/opt/root/lib -L/opt/root/lib -lCore -lImt -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lROOTVecOps -lTree -lTreePlayer -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lMultiProc -lROOTDataFrame -lm -ldl -rdynamic 

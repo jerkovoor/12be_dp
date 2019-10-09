@@ -96,7 +96,10 @@ void CQvalue_Fit(){
     double angle[17]={0};
     float TDistance = 80.88;
     
-    TFile *f = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/C_pedestal_TRIUMF_DL_NoOffset_Shift0_0883_Yu_TargetDistance80_87mm.root","READ");
+    //TFile *f = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/C_pedestal_TRIUMF_DL_NoOffset_Shift0_0883_Yu_TargetDistance80_87mm.root","READ");
+    //TFile *f = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/C_pedestal_TRIUMF_DL_NoOffset_NoShift_Yu_TargetDistance85mm_TargetFront.root","READ");
+    TFile *f = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/C_pedestal_TRIUMF_DL_NoOffset_NoShift_Yu_TargetDistance80_88mm_TargetMiddle.root","READ");
+    //TFile *f = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/C_pedestal_TRIUMF_DL_NoOffset_Shift0_0883_Yu_TargetDistance80_88mm_TargetFront.root","READ");
 	//TFile *f = new TFile("/home/jerome/12Be_exp/Analysis/CarbonGain/C_pedestal_TRIUMF_DL_QvalMinGS_Yu.root","READ");
     TFile *fg = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod.root","READ");
 	TFile *g = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod_UnevenBinning_SolidAngle_n2.root","READ");
@@ -176,31 +179,7 @@ void CQvalue_Fit(){
 	TF1* fit_func1c = new TF1 ( "fit_func1c","[0]*TMath::Exp(-pow((x-[1]),2)/(2*[2]*[2]))",2,3.5);
     
 	hCQ->Draw ();
-	//hCQ->Rebin(4);
-	
-    
-
-	// 3-Gaussian Fit for Carbon
-	fit_func3->SetParLimits ( 0,25,200);
-	fit_func3->SetParLimits ( 1,-1.5,-0.8);
-	fit_func3->SetParLimits ( 3,5,40);
-	fit_func3->SetParameter (4,-0.36);//( 4,-0.6,0.4);
-	fit_func3->SetParLimits ( 5,5,50);
-	fit_func3->SetParLimits ( 6,2.1,3.2);
-	fit_func3->SetParLimits ( 2,0.2,0.28);
-    
-    fit_func4->SetParLimits ( 0,18,30);
-    fit_func4->SetParLimits ( 1,-1.5,-1);
-	//fit_func4->FixParameter ( 1,-1.3);
-    fit_func4->SetParLimits ( 3,25,35);
-	fit_func4->SetParLimits ( 4,-1.5,-0.8);
-    //fit_func4->FixParameter ( 4,-0.98);
-	fit_func4->SetParLimits ( 5,5,40);
-	fit_func4->SetParameter (6,-0.36);//( 4,-0.6,0.4);
-	fit_func4->SetParLimits ( 7,5,50);
-	fit_func4->SetParLimits ( 8,2.1,3.2);
-	fit_func4->SetParLimits ( 2,0.2,0.28);
-	
+	//hCQ->Rebin(2);
 	
     
     Sfunc->SetParameters(1, -1.1, 0.5, 1, -0.3, 1, 2.72);
@@ -219,6 +198,21 @@ void CQvalue_Fit(){
     ROOT::Math::MinimizerOptions::SetDefaultMaxIterations(1000000);
     ROOT::Math::MinimizerOptions::SetDefaultTolerance(0.001);
     
+    
+    // 4-Gaussian Fit for Carbon
+    
+    fit_func4->SetParLimits ( 0,18,30);
+    fit_func4->SetParLimits ( 1,-1.5,-1);
+	//fit_func4->FixParameter ( 1,-1.3);
+    fit_func4->SetParLimits ( 3,25,35);
+	fit_func4->SetParLimits ( 4,-1.5,-0.8);
+    //fit_func4->FixParameter ( 4,-0.98);
+	fit_func4->SetParLimits ( 5,5,40);
+	fit_func4->SetParameter (6,-0.36);//( 4,-0.6,0.4);
+	fit_func4->SetParLimits ( 7,5,50);
+	fit_func4->SetParLimits ( 8,2.1,3.2);
+	fit_func4->SetParLimits ( 2,0.2,0.28);
+	
     hCQ->Fit ( "fit_func4","R","",-3,4);
     hCQ->GetFunction("fit_func4")->SetLineColor(kRed);
     Double_t p[11];
@@ -252,6 +246,49 @@ void CQvalue_Fit(){
     hCQ->GetFunction("fit_func1d")->SetLineColor(kBlack);
     
     hCQ->SetTitle("12C(d,p)13C Q value, TRIUMF DL");
+    
+    
+    
+    /*
+    // 3-Gaussian Fit for Carbon
+	fit_func3->SetParLimits ( 0,25,200);
+	fit_func3->SetParLimits ( 1,-2,-0.8);
+	fit_func3->SetParLimits ( 3,5,40);
+	fit_func3->SetParLimits (4,-0.6,0);//( 4,-0.6,0.4);
+	fit_func3->SetParLimits ( 5,5,50);
+	fit_func3->SetParLimits ( 6,2.1,3.2);
+	fit_func3->SetParLimits ( 2,0.2,0.3);
+    
+    hCQ->Fit ( "fit_func3","R","",-3,4);
+    hCQ->GetFunction("fit_func3")->SetLineColor(kRed);
+    Double_t p[9];
+    fit_func3->GetParameters(&p[0]);
+    
+    fit_func1a->FixParameter(0,p[0]);
+    fit_func1a->FixParameter(1,p[1]);
+    fit_func1a->FixParameter(2,p[2]);
+    
+    fit_func1b->FixParameter(0,p[3]);
+    fit_func1b->FixParameter(1,p[4]);
+    fit_func1b->FixParameter(2,p[2]);
+    
+    fit_func1c->FixParameter(0,p[5]);
+    fit_func1c->FixParameter(1,p[6]);
+    fit_func1c->FixParameter(2,p[2]);
+    
+		
+	hCQ->Fit ( fit_func1a, "R+");
+	hCQ->Fit ( fit_func1b, "R+");
+	hCQ->Fit ( fit_func1c, "R+");
+	
+    hCQ->GetFunction("fit_func1a")->SetLineColor(kBlack);
+    hCQ->GetFunction("fit_func1b")->SetLineColor(kBlack);
+    hCQ->GetFunction("fit_func1c")->SetLineColor(kBlack);
+
+    
+    hCQ->SetTitle("12C(d,p)13C Q value, TRIUMF DL");
+    */
+    
     /*TGraph *gr2 = new TGraph(2,QC0,countRange);
     gr2->Draw("same");
     gr2->SetLineColor(7);

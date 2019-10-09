@@ -64,38 +64,38 @@ void targetThicknessBe(){
     
     double energy = 77.44;//77.05;
     
-    double ESd1Si_noTarget=24.47;//24.54;
-    double ESd2Si_noTarget=77.44;//77.05;
+    double ESd1Si_noTarget=8.987;//24.54;
+    double ESd2Si_noTarget=101.79;//77.05;
     
-    cout << "sd2 Energy: " << energy << endl;
+    //cout << "sd2 Energy: " << energy << endl;
     
     double E_Be_Sd2_P_noTarget=Be_P->AddBack(ESd2Si_noTarget,dSdP);
     energy = Be_P->AddBack(energy, dSdP);
     
-    cout << "energy before P dead layer (sd2): " << energy << endl;
+    //cout << "energy before P dead layer (sd2): " << energy << endl;
     
     double E_Be_Sd2_Al3_noTarget=Be_Al->AddBack(E_Be_Sd2_P_noTarget,dSdAl3);
     energy = Be_Al->AddBack(energy, dSdAl3);
     
-    cout << "energy before Al dead layer (sd2): " << energy << endl;
+    //cout << "energy before Al dead layer (sd2): " << energy << endl;
     
     double E_Be_Sd1_Al3_noTarget=Be_Al->AddBack(E_Be_Sd2_Al3_noTarget,dSdAl3);
     energy = Be_Al->AddBack(energy, dSdAl3);
     
-    cout << "energy before Al dead layer (sd1): " << energy << endl;
+    //cout << "energy before Al dead layer (sd1): " << energy << endl;
     
     double E_Be_Sd1_P_noTarget=Be_P->AddBack(E_Be_Sd1_Al3_noTarget,dSdP);
     energy = Be_P->AddBack(energy, dSdP);
     
-    cout << "energy before P dead layer (sd1): " << energy << endl;
+    //cout << "energy before P dead layer (sd1): " << energy << endl;
     
     double Sd1rE_noTarget=ESd1Si_noTarget+E_Be_Sd1_P_noTarget;
     energy = ESd1Si_noTarget + energy;
     
-    cout << "sd1 energy: " << ESd1Si_noTarget << endl;
-    cout << "sd1 energy + sd2 energy with dead layers: " << energy << endl;
+    //cout << "sd1 energy: " << ESd1Si_noTarget << endl;
+    //cout << "sd1 energy + sd2 energy with dead layers: " << energy << endl;
     
-    cout << "sd1 deposited from SRIM: " << 101.8 - Be_Si->CalcRemainder(101.8, dSd1Si) << endl;
+    //cout << "sd1 deposited from SRIM: " << 101.8 - Be_Si->CalcRemainder(101.8, dSd1Si) << endl;
     
     double E_Be_B_noTarget = Be_B->AddBack(Sd1rE_noTarget,dSdB);
     double E_Be_Al2_noTarget = Be_Al->AddBack(E_Be_B_noTarget,dSdAl2);
@@ -103,14 +103,14 @@ void targetThicknessBe(){
     double E_Be_Al1_noTarget = Be_Al->AddBack(E_Be_SiO2_noTarget,dSdAl1);
     double E_Be_before_Ag_noTarget = Be_Ag->AddBack(E_Be_Al1_noTarget,dAg); //Initial Energy
     
-    cout << E_Be_Sd2_Al3_noTarget << endl;
+    //cout << E_Be_Sd2_Al3_noTarget << endl;
     
     cout << E_Be_before_Ag_noTarget << endl;
     
     //With Target
     
-    double ESd1Si_Target=24.71;//24.70;
-    double ESd2Si_Target=77.11;//76.88;
+    double ESd1Si_Target=9.067;//24.70;
+    double ESd2Si_Target=100.87;//76.88;
     
     double E_Be_Sd2_P_Target=Be_P->AddBack(ESd2Si_Target,dSdP);
     double E_Be_Sd2_Al3_Target=Be_Al->AddBack(E_Be_Sd2_P_Target,dSdAl3);
@@ -127,6 +127,7 @@ void targetThicknessBe(){
     double thickness = Be_D2->CalcRange(E_Be_before_Ag_noTarget,E_Be_before_Ag_Target);
     
     cout << E_Be_before_Ag_Target << endl;
+    cout << thickness << endl;
     
     
     

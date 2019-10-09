@@ -70,8 +70,14 @@ std::vector<YuDet> CheckChargeSharing(std::vector<YuDet> detect) {
 
 double yuAnalysis(){
 	//open the output file
-	TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/C_pedestal_TRIUMF_DL_NoOffset_Shift0_0883_Yu_TargetDistance80_87mm.root","RECREATE"); //change the path and name accordingly
-  
+    
+    //TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/C_pedestal_TRIUMF_DL_NoOffset_Shift0_0883_Yu_TargetDistance80_88mm_TargetMiddle.root","RECREATE");
+    //TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/C_pedestal_TRIUMF_DL_NoOffset_NoShift_Yu_TargetDistance80_88mm_TargetMiddle.root","RECREATE");
+    //TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/C_pedestal_TRIUMF_DL_NoOffset_NoShift_Yu_TargetDistance80_88mm_TargetMiddle.root","RECREATE");
+
+	//TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/C_pedestal_TRIUMF_DL_NoOffset_Shift0_0883_Yu_TargetDistance80_88mm_TargetThickness_SdrNewInBeamCal_TargetFront.root","RECREATE"); //change the path and name accordingly
+    TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withoutTarget/C_pedestal_TRIUMF_DL_NoTarget_NoOffset_Shift0_0883_Yu_TargetDistance80_88mm_TargetThickness_SdrNewInBeamCal_TargetMiddle.root","RECREATE"); //No target
+    
 	//Open the input files
 	TChain *chain = new TChain ( "AutoTree" ); //chain the desired input files
 	
@@ -124,7 +130,9 @@ double yuAnalysis(){
 			chain->Add(f_name.c_str());
 		}
 	}*/
-	
+    
+    
+	/*
 	//Carbon data with target
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5001.root" ); //change the path to the files and the file name accordingly
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5002.root" );
@@ -133,7 +141,35 @@ double yuAnalysis(){
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5006.root" );
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5007.root" );
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5009.root" );
-	
+	*/
+    
+    /*
+    //Carbon data with target
+	chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/decodeNewC_SdrNewInBeamCal_Target_TDL_YuPedestal5001.root" ); //change the path to the files and the file name accordingly
+	chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/decodeNewC_SdrNewInBeamCal_Target_TDL_YuPedestal5002.root" );
+	chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/decodeNewC_SdrNewInBeamCal_Target_TDL_YuPedestal5003.root" );
+	chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/decodeNewC_SdrNewInBeamCal_Target_TDL_YuPedestal5004.root" );
+	chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/decodeNewC_SdrNewInBeamCal_Target_TDL_YuPedestal5006.root" );
+	chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/decodeNewC_SdrNewInBeamCal_Target_TDL_YuPedestal5007.root" );
+	chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/decodeNewC_SdrNewInBeamCal_Target_TDL_YuPedestal5009.root" );
+	*/
+    
+    /*
+    chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/decodeNewC_Sd1NewAlphaCal_Target_TDL_YuPedestal5001.root" );
+    chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/decodeNewC_Sd1NewAlphaCal_Target_TDL_YuPedestal5002.root" );
+    chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/decodeNewC_Sd1NewAlphaCal_Target_TDL_YuPedestal5003.root" );
+    chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/decodeNewC_Sd1NewAlphaCal_Target_TDL_YuPedestal5004.root" );
+    chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/decodeNewC_Sd1NewAlphaCal_Target_TDL_YuPedestal5006.root" );
+    chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/decodeNewC_Sd1NewAlphaCal_Target_TDL_YuPedestal5007.root" );
+    chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/decodeNewC_Sd1NewAlphaCal_Target_TDL_YuPedestal5009.root" );
+	*/
+    
+    // Carbon no target data
+    
+    //chain->Add ( "/home/jerome/12Be_exp/Processed_files/C_notarget/decode4992.root" );
+    
+    
+    chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withoutTarget/decodeNewC_SdrNewInBeamCal_NoTarget_TDL_YuPedestal4992.root" );
 	
 	//define the input variables
 	//YYD detector
@@ -323,11 +359,13 @@ double yuAnalysis(){
 	
 	
 	/*TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/scripts/13Ccut.root"); //PID cut for C
-	TCutG *pidcut = (TCutG*) f_cut->Get("CUTG");*/ // for C
+	TCutG *pidcut = (TCutG*) f_cut->Get("CUTG"); // for C
+	*/
 	
 	TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/Analysis/CarbonGain/13CcutFull.root"); //Full PID cut for C
 	TCutG *pidcut = (TCutG*) f_cut->Get("CcutCalSd1rSd2rFull"); // for C
 	
+    
 	/*TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/Analysis/Be/BeCut1.root"); //PID cut for Be
 	TCutG *pidcut = (TCutG*) f_cut->Get("BeCut_CalSd1rSd2r"); */ // for Be
 	
@@ -340,12 +378,23 @@ double yuAnalysis(){
 		//cout << Yubins[i] << endl;
 	}
 	
+	TH2D *hSd1rSd2r = new TH2D("hSd1rSd2r","Sd1r vs Sd2r",500,0,5000,500,0,5000); //non calibrated Sd1r vs Sd2r
+    TH2D *hSd1rSd2s = new TH2D("hSd1rSd2s","Sd1r vs Sd2s",500,0,5000,500,0,5000); //non calibrated Sd1r vs Sd2s
 	TH2D *hCSd1rSd2r = new TH2D("hCSd1rSd2r","Calibrated Sd1r vs Sd2r",1500,0,150,600,0,25); // calibrated Sd1r vs Sd2r
 	TH2D *hCSd1rSd2rIC = new TH2D("hCSd1rSd2rIC","Cal Sd1r vs Sd2r, gated by IC",1500,0,150,600,0,25); // calibrated Sd1r vs Sd2r and gated by IC
 	TH2D *hCSd1rSd2rICCut = new TH2D("hCSd1rSd2rICCut","Cal Sd1r vs Sd2r, gated by IC gated by the channel corr",1500,0,150,600,0,25); // calibrated Sd1r vs Sd2r gated by IC and required to be
 	TH2D *hCSd1rSd2rYdIC = new TH2D("hCSd1rSd2rYdIC","Cal Sd1r vs Sd2r, gated by Yd & IC",1500,0,150,600,0,25); // calibrated Sd1r vs Sd2r and gated by Yd & IC
 	TH2D *hCSd1rSd2rYdICCut = new TH2D("hCSd1rSd2rYdICCut","Cal Sd1r vs Sd2r, gated by Yd & IC & chann corr",1500,0,150,600,0,25); // calibrated Sd1r vs Sd2r gated by Yd, IC and required to be correlated with each other
 	
+    TH1D *hCSd1rEn = new TH1D("hCSd1rEn","Calibrated SD1r Energy",500,0,50);
+    TH1D *hCSd1r_0_1_2_En = new TH1D("hCSd1r_0_1_2_En","Calibrated SD1r Energy (Rings 0, 1, and 2)",500,0,50);
+    
+    TH1D *hCSd1sEn = new TH1D("hCSd1sEn","Calibrated SD1s Energy",500,0,50);
+    TH1D *hCSd2sEn = new TH1D("hCSd2sEn","Calibrated SD2s Energy",500,0,100);
+    
+    TH1D *hCSd2rEn = new TH1D("hCSd2rEn","Calibrated SD2r Energy",500,0,120);
+    TH1D *hCSd2r_0_1_2_En = new TH1D("hCSd2r_0_1_2_En","Calibrated SD2r Energy (Rings 0, 1, and 2)",500,0,120);
+    
   	TH1D *hYuMul = new TH1D("hYuMul","hYuMul",10,0,10);
 	
 	TH1D *hYuEn = new TH1D("hYuEn","hYuEn",2500,0,10); //energy singles in Yu
@@ -386,6 +435,8 @@ double yuAnalysis(){
 	//TH2D *hYuAnPIDR8_11 = new TH2D("hYuAnPIDR8_11","YuE vs Angle with an IC and PID gate, rings 8 to 11",16,Yubins,6000,0,6);
 	TH2D *hYuAnPIDRs8_15 = new TH2D("hYuAnPIDRs12_15","YuE vs Angle with an IC and PID gate, rings 8 to 15",16,Yubins,6000,0,6);
 	
+    TH2D *hICSd1rSd2r = new TH2D("hICSd1rSd2r","IC Ch. No. vs Sd1r+Sd2r Energy in MeV",600,0,120,400,0,4000);
+    
 	//Q values
 	TH1D *hQval = new TH1D("hQval","Q values",160,-4,4);
 	TH1D *hQvalT = new TH1D("hQvalT","Q values with target energy loss",160,-4,4);
@@ -479,7 +530,7 @@ double yuAnalysis(){
 	//variable definition for the Q value calculations
 	float amu = 931.5; // atomic mass unit in MeV
 	float massEjec = 938.28; //mass of the proton in MeV/c2 
-	float kBeam = 110; //put the correct value; beam energy
+	float kBeam = 110; //put the correct value; beam energy 110 MeV at the center of the target; 111.22 MeV at the front of the target
 	float mbeam = 12 * amu;  //mass of the beam (12Be or 12C) in MeV
 	float mrecoil = 13 * amu;  //mass of the recoil (13Be or 13C) in MeV
 	float mejec = 1 * amu; //mass of the proton
@@ -584,7 +635,7 @@ double yuAnalysis(){
     }
 	
 
-	double shift=0.0883486;//0.0904;//0.0924;//0.154;
+	double shift=0;//0.0883486;//0.0904;//0.0924;//0.154;
 	double YuEnergyLoss, YuEnergyShift;
 	////////////////////////////////
 	// Event by event starts here //
@@ -616,10 +667,6 @@ double yuAnalysis(){
 			Sd2rDetector.push_back(hit);
 		}
 		
-		if(Sd1rDetector.empty() || Sd2rDetector.empty()) continue;
-		//if(YuDetector.empty()) continue;
-		//if(!pidcut->IsInside(Sd2rDetector[0].energy,Sd1rDetector[0].energy) || ICEnergyRaw<1500 || ICEnergyRaw>2200) continue;
-		
 		//Sorting Yu
 		if(!YuDetector.empty()) std::sort(YuDetector.begin(), YuDetector.end(), sortByEnergyYY1());
 		
@@ -629,6 +676,13 @@ double yuAnalysis(){
 		//Sorting Sd2r
 		if(!Sd2rDetector.empty()) std::sort(Sd2rDetector.begin(), Sd2rDetector.end(), sortByEnergyS3());
 		
+		if(Sd1rDetector.empty() || Sd2rDetector.empty()) continue;
+		//if(YuDetector.empty()) continue;
+        //if(ICEnergyRaw < 1500 || ICEnergyRaw > 2200) continue;
+		//if(!pidcut->IsInside(Sd2rDetector[0].energy,Sd1rDetector[0].energy)) continue;
+		
+		
+		
 		if(YuDetector.size()>1) {
 			hYuEnM->Fill(YuDetector[0].energy,YuDetector[1].energy);
 			hYuEnMICPID->Fill(YuDetector[0].energy,YuDetector[1].energy);
@@ -636,7 +690,8 @@ double yuAnalysis(){
 		
 		
 		//Sd1r vs Sd2r calibrated
-		if(Sd1rDetector.size()>0 && Sd2rDetector.size()>0){// && Sd1rMul==1 && Sd2rMul==1){
+		if((Sd1rDetector.size()>0 && Sd2rDetector.size()>0) && Sd1rMul==1 && Sd2rMul==1){
+            hSd1rSd2r->Fill(Sd2rEnergyRaw->at(0),Sd1rEnergyRaw->at(0)); //Non-calibrated Sd1r vs Sd2r energy - PID plot
 			hCSd1rSd2r->Fill(Sd2rDetector[0].energy,Sd1rDetector[0].energy); //Calibrated Sd1r vs Sd2r energy with no gates
 			if ( ICEnergyRaw>1500 && ICEnergyRaw<2200){
 				hCSd1rSd2rIC->Fill ( Sd2rDetector[0].energy,Sd1rDetector[0].energy );  //Calibrated Sd1r vs Sd2r energy with IC gate
@@ -650,7 +705,29 @@ double yuAnalysis(){
 					} //Calibrated Sd1r vs Sd2r energy with IC and Yd gate and ring vs ring correlation
 				} //end of Yd gates
 			} //end of IC gates
+			
+			hCSd1rEn->Fill(Sd1rDetector[0].energy);
+            hCSd2rEn->Fill(Sd2rDetector[0].energy);
+            
+            if(Sd1sEnergy->size()>0 && Sd1sEnergy->at(0)>0){
+                hCSd1sEn->Fill(Sd1sEnergy->at(0));
+            }
+            
+            if(Sd2sEnergy->size()>0 && Sd2sEnergy->at(0)>0){
+                hCSd2sEn->Fill(Sd2sEnergy->at(0));
+            }
+            
+            if (Sd1rDetector[0].channel<3) {
+                hCSd1r_0_1_2_En->Fill(Sd1rDetector[0].energy);
+            }
+            
+            if (Sd2rDetector[0].channel<3) {
+                hCSd2r_0_1_2_En->Fill(Sd2rDetector[0].energy);
+            }
+			
 		} //end of Sd1r vs Sd2r calibrated
+		
+		hICSd1rSd2r->Fill(Sd1rDetector[0].energy+Sd2rDetector[0].energy,ICEnergyRaw);
 		
 		
 		//fill in the Yu detector
@@ -838,11 +915,22 @@ double yuAnalysis(){
 	f_out->cd();
     
 	//write the histograms in the output root file
+    hSd1rSd2r->Write();
 	hCSd1rSd2r->Write();
 	hCSd1rSd2rIC->Write(); //calibrated ring vs ring with IC cut
 	hCSd1rSd2rICCut->Write(); //calibrated ring vs ring with IC cut and diagonal taken into account
 	hCSd1rSd2rYdIC->Write();
 	hCSd1rSd2rYdICCut->Write();
+    hCSd1rEn->Write();
+    hCSd2rEn->Write();
+    
+    hCSd1sEn->Write();
+    hCSd2sEn->Write();
+    
+    hCSd1r_0_1_2_En->Write();
+    hCSd2r_0_1_2_En->Write();
+    hICSd1rSd2r->Write();
+    
 	//Yu
 	hYuAn->Write();
 	hYuAnT->Write();

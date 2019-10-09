@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/jerome/12Be_exp/scripts/reduceData/build",
+  "command": "/usr/bin/c++   -I/opt/root/include   -std=c++11 -O3   -std=gnu++11 -o CMakeFiles/reduce.dir/Reduce.C.o -c /home/jerome/12Be_exp/scripts/reduceData/Reduce.C",
+  "file": "/home/jerome/12Be_exp/scripts/reduceData/Reduce.C"
+}
+]

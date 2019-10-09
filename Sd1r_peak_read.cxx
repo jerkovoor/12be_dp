@@ -1,4 +1,4 @@
-//12C in-beam calibration of Sd detectors
+//Calibration of Sd detectors using Alpha or 12C beam
 
 using namespace std;
 
@@ -19,6 +19,20 @@ using namespace std;
 #include <algorithm>
 #include "TF1.h"
 #include "fstream"
+
+typedef struct S3Det{
+	int mult;
+	int channel;
+	double energyRaw;
+	double energy;
+} S3Det;
+
+struct sortByEnergyS3 {
+	inline bool operator() (const S3Det& EnS3_1,
+							const S3Det& EnS3_2){
+		return (EnS3_1.energy>EnS3_2.energy);
+	}
+};
 
 double Sd1r_peak_read()
 {
@@ -56,21 +70,25 @@ double Sd1r_peak_read()
     int Sd1rMul;
     vector<int>* Sd1rChannel= new vector<int>; //Ring Channels
     vector<double>* Sd1rEnergyRaw= new vector<double>;
+    vector<double>* Sd1rEnergy= new vector<double>;
  
     //Sd1s detector
     int Sd1sMul;
     vector<int>* Sd1sChannel= new vector<int>; //Sector Channels
     vector<double>* Sd1sEnergyRaw= new vector<double>;
+    vector<double>* Sd1sEnergy= new vector<double>;
  
     //Sd2r detector
     int Sd2rMul;
     vector<int>* Sd2rChannel= new vector<int>; //Ring Channels
     vector<double>* Sd2rEnergyRaw= new vector<double>;
+    vector<double>* Sd2rEnergy= new vector<double>;
  
     //Sd2s detector
     int Sd2sMul;
     vector<int>* Sd2sChannel= new vector<int>; //Sector Channels
     vector<double>* Sd2sEnergyRaw= new vector<double>;
+    vector<double>* Sd2sEnergy= new vector<double>;
 
     //Sur
     int SurMul;
@@ -85,14 +103,24 @@ double Sd1r_peak_read()
   
     TChain* chain = new TChain ( "AutoTree" );
     
+    //Pedestal data
+    //chain->Add ( "/home/jerome/12Be_exp/Processed_files/pedestalindpndt_4815.root" );
+    
+    
+    /*
     //Alpha data
     chain->Add ( "/home/jerome/12Be_exp/Processed_files/rootindpndt_4972.root" ); //change the path to the files and the file name accordingly
     chain->Add ( "/home/jerome/12Be_exp/Processed_files/rootindpndt_4973.root" );
     chain->Add ( "/home/jerome/12Be_exp/Processed_files/rootindpndt_4974.root" );
     chain->Add ( "/home/jerome/12Be_exp/Processed_files/rootindpndt_4975.root" );
     chain->Add ( "/home/jerome/12Be_exp/Processed_files/rootindpndt_4977.root" );
+    */
+    
+    // Carbon no target data
+    chain->Add ( "/home/jerome/12Be_exp/Processed_files/C_notarget/decode4992.root" );
     
     /*
+    
     //Carbon data with target
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/target_thickness/12C/decode5001.root" ); //change the path to the files and the file name accordingly
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/target_thickness/12C/decode5002.root" );
@@ -101,8 +129,8 @@ double Sd1r_peak_read()
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/target_thickness/12C/decode5006.root" );
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/target_thickness/12C/decode5007.root" );
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/target_thickness/12C/decode5009.root" );
-    */
     
+    */
     
     //Be Data
     /*
@@ -139,7 +167,7 @@ double Sd1r_peak_read()
 	
 	*/
     
-    TFile *f_out = new TFile ( "/home/jerome/12Be_exp/Analysis/Sd_Calibration/Sd1_AlphaPeaks.root","RECREATE" );
+    TFile *f_out = new TFile ( "/home/jerome/12Be_exp/Analysis/Sd_Calibration/C_notarget.root","RECREATE" );
    
     chain->SetBranchAddress ( "YdMul",&YdMul );
     chain->SetBranchAddress ( "YdChannel",&YdChannel );
@@ -167,18 +195,22 @@ double Sd1r_peak_read()
     chain->SetBranchAddress ( "Sd1rMul",&Sd1rMul );
     chain->SetBranchAddress ( "Sd1rChannel",&Sd1rChannel );
     chain->SetBranchAddress ( "Sd1rEnergyRaw",&Sd1rEnergyRaw );
+    chain->SetBranchAddress ( "Sd1rEnergy",&Sd1rEnergy );
 
     chain->SetBranchAddress ( "Sd1sMul",&Sd1sMul );
     chain->SetBranchAddress ( "Sd1sChannel",&Sd1sChannel );
     chain->SetBranchAddress ( "Sd1sEnergyRaw",&Sd1sEnergyRaw );
+    chain->SetBranchAddress ( "Sd1sEnergy",&Sd1sEnergy );
 
     chain->SetBranchAddress ( "Sd2rMul",&Sd2rMul );
     chain->SetBranchAddress ( "Sd2rChannel",&Sd2rChannel );
     chain->SetBranchAddress ( "Sd2rEnergyRaw",&Sd2rEnergyRaw );
+    chain->SetBranchAddress ( "Sd2rEnergy",&Sd2rEnergy );
 
     chain->SetBranchAddress ( "Sd2sMul",&Sd2sMul );
     chain->SetBranchAddress ( "Sd2sChannel",&Sd2sChannel );
     chain->SetBranchAddress ( "Sd2sEnergyRaw",&Sd2sEnergyRaw );
+    chain->SetBranchAddress ( "Sd2sEnergy",&Sd2sEnergy );
  
     chain->SetBranchAddress ( "SurMul",&SurMul );
     chain->SetBranchAddress ( "SurChannel",&SurChannel );
@@ -233,10 +265,10 @@ double Sd1r_peak_read()
     for(int i=0; i<24; i++)
     {
         string Sd1r_name = Form ( "Sd1r_Ch%i",i );
-        hSd1r[i] =  new TH1D ( Sd1r_name.c_str(),"Sd1r_Ch",500,0,2000 );
+        hSd1r[i] =  new TH1D ( Sd1r_name.c_str(),"Sd1r_Ch",200,0,2000 );
 
         string Sd2r_name = Form ( "Sd2r_Ch%i",i );
-        hSd2r[i] =  new TH1D ( Sd2r_name.c_str(),"Sd2r_Ch",100,100,200 );
+        hSd2r[i] =  new TH1D ( Sd2r_name.c_str(),"Sd2r_Ch",400,0,4000 );
 
         string Sur_name = Form ( "Sur_Ch%i",i );
         hSur[i] =  new TH1D ( Sur_name.c_str(),"Sur_Ch",1024,0,4096 );
@@ -245,26 +277,54 @@ double Sd1r_peak_read()
     for(int i=0; i<32; i++)
     {
         string Sd1s_name = Form ( "Sd1s_Ch%i",i );
-        hSd1s[i] =  new TH1D ( Sd1s_name.c_str(),"Sd1s_Ch",500,0,2000 );
+        hSd1s[i] =  new TH1D ( Sd1s_name.c_str(),"Sd1s_Ch",200,0,2000 );
 
         string Sd2s_name = Form ( "Sd2s_Ch%i",i );
-        hSd2s[i] =  new TH1D ( Sd2s_name.c_str(),"Sd2s_Ch",100,100,200 );
+        hSd2s[i] =  new TH1D ( Sd2s_name.c_str(),"Sd2s_Ch",400,0,4000 );
 
         string Sus_name = Form ( "Sus_Ch%i",i );
         hSus[i] =  new TH1D ( Sus_name.c_str(),"Sus_Ch",1024,0,4096 );
     }
     
+    TH2D *hSd1rSd2r = new TH2D("hSd1rSd2r","Sd1r vs Sd2r",500,0,2000,500,0,2000); // calibrated Sd1r vs Sd2r
     
+    TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/HeCut.root"); //He cut
+	TCutG *pidcut = (TCutG*) f_cut->Get("HeCut"); // He cut
     
     int ev = chain->GetEntries();
     cout << "Total number of events =" << ev << endl;
     int ev_num=0;
     
     //Event by event starts
-    
-    while ( ev_num<=ev ){
+    for(int ev_num = 0; ev_num <= ev; ev_num++) {
+    //while ( ev_num < ev ){
         if ( ev_num%10000==0 ) cout << "Current event = " << ev_num << "\r"<< flush;
         chain->GetEntry ( ev_num );
+        
+        //Defining a structure Sd1rDetector
+		vector<S3Det> Sd1rDetector;
+		for(size_t i = 0; i < Sd1rEnergy->size(); i++) {
+			S3Det hit = {Sd1rMul, Sd1rChannel->at(i), Sd1rEnergyRaw->at(i), Sd1rEnergy->at(i)};
+			Sd1rDetector.push_back(hit);
+		}
+		
+		//Defining a structure Sd2rDetector
+		vector<S3Det> Sd2rDetector;
+		for(size_t i = 0; i < Sd2rEnergy->size(); i++) {
+			S3Det hit = {Sd2rMul, Sd2rChannel->at(i), Sd2rEnergyRaw->at(i), Sd2rEnergy->at(i)};
+			Sd2rDetector.push_back(hit);
+		}
+		
+		//Sorting Sd1r
+		if(!Sd1rDetector.empty()) std::sort(Sd1rDetector.begin(), Sd1rDetector.end(), sortByEnergyS3());
+		
+		//Sorting Sd2r
+		if(!Sd2rDetector.empty()) std::sort(Sd2rDetector.begin(), Sd2rDetector.end(), sortByEnergyS3());
+		
+		//if(Sd1rDetector.empty() || Sd2rDetector.empty()) continue;
+        
+        //if(Sd1rEnergyRaw->size()==0 || Sd2rEnergyRaw->size()==0) continue;
+        //if(!pidcut->IsInside(Sd2rEnergyRaw->at ( 0 ),Sd1rEnergyRaw->at ( 0 ))) continue;
 
         if ( YdEnergyRaw->size() >0 && YdMul==1 ){if ( YdEnergyRaw->at(0)>0 ){hYd[YdChannel->at(0)]->Fill ( YdEnergyRaw->at(0) );}}
         //cout << "I am at Yd" << endl;
@@ -281,21 +341,62 @@ double Sd1r_peak_read()
     
         if ( CsI1EnergyRaw->size() >0 && CsI1Mul==1 ){if ( CsI1EnergyRaw->at ( 0 ) >0 ){hCsI1[CsI1Channel->at ( 0 )]->Fill ( CsI1EnergyRaw->at ( 0 ) );}}
         if ( CsI2EnergyRaw->size() >0 && CsI2Mul==1 ){if ( CsI2EnergyRaw->at ( 0 ) >0 ){hCsI2[CsI2Channel->at ( 0 )]->Fill ( CsI2EnergyRaw->at ( 0 ) );}}
-        if ( Sd1rEnergyRaw->size() >0 && Sd1rMul==1 ){if ( Sd1rEnergyRaw->at ( 0 ) >500 ){hSd1r[Sd1rChannel->at ( 0 )]->Fill ( Sd1rEnergyRaw->at ( 0 ) );}}
-        if ( Sd1sEnergyRaw->size() >0 && Sd1sMul==1 ){if ( Sd1sEnergyRaw->at ( 0 ) >500 ){hSd1s[Sd1sChannel->at ( 0 )]->Fill ( Sd1sEnergyRaw->at ( 0 ) );}}
-        if ( Sd2rEnergyRaw->size() >0 && Sd2rMul==1 ){if ( Sd2rEnergyRaw->at ( 0 ) >0 ){hSd2r[Sd2rChannel->at ( 0 )]->Fill ( Sd2rEnergyRaw->at ( 0 ) );}}
-        if ( Sd2sEnergyRaw->size() >0 && Sd2sMul==1 ){if ( Sd2sEnergyRaw->at ( 0 ) >0 ){hSd2s[Sd2sChannel->at ( 0 )]->Fill ( Sd2sEnergyRaw->at ( 0 ) );}}
-        if ( SurEnergyRaw->size() >0 && SurMul==1 ){if ( SurEnergyRaw->at ( 0 ) >0 ){hSur[SurChannel->at ( 0 )]->Fill ( SurEnergyRaw->at ( 0 ) );}}
-        if ( SusEnergyRaw->size() >0 && SusMul==1 ){if ( SusEnergyRaw->at ( 0 ) >0 ){hSus[SusChannel->at ( 0 )]->Fill ( SusEnergyRaw->at ( 0 ) );}}
+        //if ( Sd1rEnergyRaw->size() >0 && Sd1rMul==1 ){if ( Sd1rEnergyRaw->at ( 0 ) >500 ){hSd1r[Sd1rChannel->at ( 0 )]->Fill ( Sd1rEnergyRaw->at ( 0 ) );}}
+        //if ( Sd1sEnergyRaw->size() >0 && Sd1sMul==1 ){if ( Sd1sEnergyRaw->at ( 0 ) >500 ){hSd1s[Sd1sChannel->at ( 0 )]->Fill ( Sd1sEnergyRaw->at ( 0 ) );}}
+        if ( Sd1rEnergyRaw->size() >0 ){
+            if ( Sd1rEnergyRaw->at ( 0 ) >0 ){
+                //cout << Sd1rChannel->at ( 0 ) << endl;
+                hSd1r[Sd1rChannel->at ( 0 )]->Fill ( Sd1rEnergyRaw->at ( 0 ) );
+            }
+        }//For pedestals
+        
+        if ( Sd1sEnergyRaw->size() >0){
+            if ( Sd1sEnergyRaw->at ( 0 ) >0 ){
+                hSd1s[Sd1sChannel->at ( 0 )]->Fill ( Sd1sEnergyRaw->at ( 0 ) );
+            }
+        }//For pedestals
+        
+        if ( Sd1rEnergyRaw->size() >0 && Sd2rMul==1 ){
+            if ( Sd2rEnergyRaw->at ( 0 ) >0){
+                hSd2r[Sd2rChannel->at ( 0 )]->Fill ( Sd2rEnergyRaw->at ( 0 ) );
+            }
+        }
+        
+        if ( Sd2sEnergyRaw->size() >0 && Sd2sMul==1 ){
+            if ( Sd2sEnergyRaw->at ( 0 ) >0 ){
+                hSd2s[Sd2sChannel->at ( 0 )]->Fill ( Sd2sEnergyRaw->at ( 0 ) );
+            }
+        }
+        
+        if ( SurEnergyRaw->size() >0 && SurMul==1 ){
+            if ( SurEnergyRaw->at ( 0 ) >0 ){
+                hSur[SurChannel->at ( 0 )]->Fill ( SurEnergyRaw->at ( 0 ) );
+            }
+        }
+        
+        if ( SusEnergyRaw->size() >0 && SusMul==1 ){
+            if ( SusEnergyRaw->at ( 0 ) >0 ){
+                hSus[SusChannel->at ( 0 )]->Fill ( SusEnergyRaw->at ( 0 ) );
+            }
+        }
 
-        ev_num++;
+        //ev_num++;
     }//end of the while loop
         
     //Event by event ends    
     f_out->cd();
 
-    for ( int i=0; i<24; i++ ){hSd1r[i]->Write();}
-    for ( int i=0; i<32; i++ ){hSd1s[i]->Write();}
+    for ( int i=0; i<24; i++ ){
+        //hSd1r[i]->SetLogy();
+        hSd1r[i]->Write();
+        hSd2r[i]->Write();
+    }
+    
+    for ( int i=0; i<32; i++ ){
+        //hSd1s[i]->SetLogy();
+        hSd1s[i]->Write();
+        hSd2s[i]->Write();
+    }
     
     f_out->Close();
 

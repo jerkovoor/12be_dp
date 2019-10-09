@@ -1,4 +1,4 @@
-//12C in-beam calibration of Sd detectors
+//Alpha calibration of Sd1 detector
 
 using namespace std;
 
@@ -57,16 +57,6 @@ double Sd_alpha_peak_read()
         nfound = s->Search ( hSd1r[j],2,"",0.1 );
        
         for ( int p=0; p<nfound; p++ ){Sdrxp[p] = txp[p];}
-        
-       // Sdrped[j] = min ( min ( Sdrxp[0], Sdrxp[1] ),min ( Sdrxp[2],Sdrxp[3] ) );
-       // Sdrc[j] = max ( max ( Sdrxp[0], Sdrxp[1] ),max ( Sdrxp[2],Sdrxp[3] ) );
-
-      // if((Sdrxp[0]!=Sdrped[j] && Sdrxp[0]!=Sdrc[j]) && (Sdrxp[1]!=Sdrped[j] && Sdrxp[1]!=Sdrc[j])){Sdra[j]=min(Sdrxp[0],Sdrxp[1]);Sdrb[j]=max(Sdrxp[0],Sdrxp[1]);}
-      // else if ((Sdrxp[0]!=Sdrped[j] && Sdrxp[0]!=Sdrc[j]) && (Sdrxp[2]!=Sdrped[j] && Sdrxp[2]!=Sdrc[j])){Sdra[j]=min(Sdrxp[0],Sdrxp[2]);Sdrb[j]=max(Sdrxp[0],Sdrxp[2]);}
-      // else if ((Sdrxp[0]!=Sdrped[j] && Sdrxp[0]!=Sdrc[j]) && (Sdrxp[3]!=Sdrped[j] && Sdrxp[3]!=Sdrc[j])){Sdra[j]=min(Sdrxp[0],Sdrxp[3]);Sdrb[j]=max(Sdrxp[0],Sdrxp[3]);}
-      // else if ((Sdrxp[1]!=Sdrped[j] && Sdrxp[1]!=Sdrc[j]) && (Sdrxp[2]!=Sdrped[j] && Sdrxp[2]!=Sdrc[j])){Sdra[j]=min(Sdrxp[1],Sdrxp[2]);Sdrb[j]=max(Sdrxp[1],Sdrxp[2]);}
-      // else if ((Sdrxp[1]!=Sdrped[j] && Sdrxp[1]!=Sdrc[j]) && (Sdrxp[3]!=Sdrped[j] && Sdrxp[3]!=Sdrc[j])){Sdra[j]=min(Sdrxp[1],Sdrxp[3]);Sdrb[j]=max(Sdrxp[1],Sdrxp[3]);}
-    //   else if ((Sdrxp[2]!=Sdrped[j] && Sdrxp[2]!=Sdrc[j]) && (Sdrxp[3]!=Sdrped[j] && Sdrxp[3]!=Sdrc[j])){Sdra[j]=min(Sdrxp[2],Sdrxp[3]);Sdrb[j]=max(Sdrxp[2],Sdrxp[3]);}
        
         Sdra[j] = min ( min ( Sdrxp[0],Sdrxp[1] ), Sdrxp[2] );
         Sdrc[j] = max ( max ( Sdrxp[0],Sdrxp[1] ), Sdrxp[2] );
@@ -88,17 +78,17 @@ double Sd_alpha_peak_read()
     for ( int i=0; i<24; i++ )
     {
       //cout << i << " a " << Sdra[i] << " b " << Sdrb[i] << " c " << Sdrc[i] << endl;
-       if(i<7)
+       if(i==0)
+       {fit_func3->SetParLimits ( 1,Sdra[i]-5,Sdra[i]+5 );
+        fit_func3->SetParLimits ( 4,Sdrb[i]-5,Sdrb[i]+5 );
+        fit_func3->SetParLimits ( 6,Sdrc[i]-5,Sdrc[i]+5 );
+        fit_func3->SetParLimits ( 2,0,20 );
+       }
+       else if(i>0)
        {fit_func3->SetParLimits ( 1,Sdra[i]-5,Sdra[i]+5 );
         fit_func3->SetParLimits ( 4,Sdrb[i]-5,Sdrb[i]+5 );
         fit_func3->SetParLimits ( 6,Sdrc[i]-5,Sdrc[i]+5 );
         fit_func3->SetParLimits ( 2,0,10 );
-       }
-       else if(i>6)
-       {fit_func3->SetParLimits ( 1,Sdra[i]-5,Sdra[i]+5 );
-        fit_func3->SetParLimits ( 4,Sdrb[i]-5,Sdrb[i]+5 );
-        fit_func3->SetParLimits ( 6,Sdrc[i]-5,Sdrc[i]+5 );
-        fit_func3->SetParLimits ( 2,0,6 );
         }
         hSd1r[i]->Fit ( "fit_func3","","",Sdra[i]-50,Sdrc[i]+50 );
 
@@ -116,16 +106,6 @@ double Sd_alpha_peak_read()
        
         for ( int p=0; p<nfound; p++ ){Sdsxp[p] = txp[p];}
         
-      //  Sdsped[j] = min ( min ( Sdsxp[0], Sdsxp[1] ),min ( Sdsxp[2],Sdsxp[3] ) );
-      //  Sdsc[j] = max ( max ( Sdsxp[0], Sdsxp[1] ),max ( Sdsxp[2],Sdsxp[3] ) );
-
-     //  if((Sdsxp[0]!=Sdsped[j] && Sdsxp[0]!=Sdsc[j]) && (Sdsxp[1]!=Sdsped[j] && Sdsxp[1]!=Sdsc[j])){Sdsa[j]=min(Sdsxp[0],Sdsxp[1]);Sdsb[j]=max(Sdsxp[0],Sdsxp[1]);}
-     //  else if ((Sdsxp[0]!=Sdsped[j] && Sdsxp[0]!=Sdsc[j]) && (Sdsxp[2]!=Sdsped[j] && Sdsxp[2]!=Sdsc[j])){Sdsa[j]=min(Sdsxp[0],Sdsxp[2]);Sdsb[j]=max(Sdsxp[0],Sdsxp[2]);}
-     //  else if ((Sdsxp[0]!=Sdsped[j] && Sdsxp[0]!=Sdsc[j]) && (Sdsxp[3]!=Sdsped[j] && Sdsxp[3]!=Sdsc[j])){Sdsa[j]=min(Sdsxp[0],Sdsxp[3]);Sdsb[j]=max(Sdsxp[0],Sdsxp[3]);}
-     //  else if ((Sdsxp[1]!=Sdsped[j] && Sdsxp[1]!=Sdsc[j]) && (Sdsxp[2]!=Sdsped[j] && Sdsxp[2]!=Sdsc[j])){Sdsa[j]=min(Sdsxp[1],Sdsxp[2]);Sdsb[j]=max(Sdsxp[1],Sdsxp[2]);}
-     //  else if ((Sdsxp[1]!=Sdsped[j] && Sdsxp[1]!=Sdsc[j]) && (Sdsxp[3]!=Sdsped[j] && Sdsxp[3]!=Sdsc[j])){Sdsa[j]=min(Sdsxp[1],Sdsxp[3]);Sdsb[j]=max(Sdsxp[1],Sdsxp[3]);}
-     //  else if ((Sdsxp[2]!=Sdsped[j] && Sdsxp[2]!=Sdsc[j]) && (Sdsxp[3]!=Sdsped[j] && Sdsxp[3]!=Sdsc[j])){Sdsa[j]=min(Sdsxp[2],Sdsxp[3]);Sdsb[j]=max(Sdsxp[2],Sdsxp[3]);}
-      
         Sdsa[j] = min ( min ( Sdsxp[0],Sdsxp[1] ), Sdsxp[2] );
         Sdsc[j] = max ( max ( Sdsxp[0],Sdsxp[1] ), Sdsxp[2] );
 
@@ -160,8 +140,15 @@ double Sd_alpha_peak_read()
     
     f_out->cd();
 
-    for ( int i=0; i<24; i++ ){hSd1r[i]->Write();}
-    for ( int i=0; i<32; i++ ){hSd1s[i]->Write();}
+    for ( int i=0; i<24; i++ ){
+        hSd1r[i]->GetXaxis()->SetRangeUser(600,1000);
+        hSd1r[i]->Write();
+    }
+    
+    for ( int i=0; i<32; i++ ){
+        hSd1s[i]->GetXaxis()->SetRangeUser(600,1000);
+        hSd1s[i]->Write();   
+    }
     
     f_out->Close();
 

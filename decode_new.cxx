@@ -12,8 +12,10 @@ using namespace std;
 double decode ( int run_num ){
 	
 	//string f_name = Form ( "/home/jerome/12Be_exp/Raw_root/tree%i_%d.root",run_num,index);   
-	//string f_name = Form ( "/home/jerome/12Be_exp/Raw_root/12Be/tree%i.root",run_num ); //open the raw root file you want to convert to the format used by my codes; put the correct path and file name
-	string f_name = Form ( "/home/jerome/12Be_exp/Raw_root/Be_notarget/tree%i.root",run_num );
+	string f_name = Form ( "/home/jerome/12Be_exp/Raw_root/12Be/tree%i.root",run_num ); //open the raw root file you want to convert to the format used by my codes; put the correct path and file name
+	//string f_name = Form ( "/home/jerome/12Be_exp/Raw_root/Be_notarget/tree%i.root",run_num );
+    //string f_name = Form ( "/home/jerome/12Be_exp/Raw_root/12C/tree%i.root",run_num );
+    //string f_name = Form ( "/home/jerome/12Be_exp/Raw_root/C_notarget/tree%i.root",run_num );
     TFile* f_in = TFile::Open ( f_name.c_str(),"READ" );
 	TTree* tr_in = ( TTree* ) f_in->Get ( "Iris" ); //reading the Iris tree; 
 	//only the ADC leafs of the tree are used in the code. The rest of the data has a vector-array configuration or something like that and presents reliability which introduces unnecessary uncertanties
@@ -184,8 +186,10 @@ double decode ( int run_num ){
 	//open the output file
 	
 	//string fOut_name = Form ( "/home/jerome/12Be_exp/Analysis/Su_calibration/decode_%i_%d.root",run_num,index); //Open the output file; put the correct path and file name
-	//string fOut_name = Form ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/decodeNewBe_TDL_YuPedestal%i.root",run_num ); //Open the output file; put the correct path and file name
-    string fOut_name = Form ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_noTarget/decodeNewBe_noTarget_TDL_YuPedestal%i.root",run_num ); //Be no target
+	string fOut_name = Form ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_target/decodeNewBe_Sd1rAlphaCal_Sd2rNewInBeamCal_TDL_YuPedestal%i.root",run_num ); //Open the output file; put the correct path and file name
+    //string fOut_name = Form ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_noTarget/decodeNewBe_Sd1rAlphaCal_Sd2rNewInBeamCal_noTarget_TDL_YuPedestal%i.root",run_num ); //Be no target
+    //string fOut_name = Form ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/decodeNewC_SdrNewInBeamCal_Target_TDL_YuPedestal%i.root",run_num ); //Be no target
+    //string fOut_name = Form ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withoutTarget/decodeNewC_SdrNewInBeamCal_NoTarget_TDL_YuPedestal%i.root",run_num ); 
     //std::cout << fOut_name << std::endl;
 	TFile* f_out = new TFile ( fOut_name.c_str(),"RECREATE" );
 	TTree* tr_out = new TTree ( "AutoTree","AutoTree" ); //create the new root tree
@@ -294,7 +298,9 @@ double decode ( int run_num ){
 	
 	//Openning and readin the calibration files for the Sd1 and Sd2 detectors
 	//Alpha_Sd1r.open("/home/jerome/12Be_exp/Calibration_files/Sd1r_4815Ped.txt"); //put the correct path and file name
-    Alpha_Sd1r.open("/home/jerome/12Be_exp/notarget_peak_position/Sd1r_notarget_fit.txt"); //calibration using 12C beam
+    //Alpha_Sd1r.open("/home/jerome/12Be_exp/notarget_peak_position/Sd1r_notarget_fit.txt"); //calibration using 12C beam
+    Alpha_Sd1r.open("/home/jerome/12Be_exp/Analysis/Sd_Calibration/Sd1rAlphaCalibration.txt");//New Alpha calibration
+    //Alpha_Sd1r.open("/home/jerome/12Be_exp/Analysis/Sd_Calibration/Sd1rInBeamCalibration.txt");//calibration using 12C beam and 4He particles
 	if(Alpha_Sd1r.is_open()){
 		Alpha_Sd1r.ignore(256,'\n');
 		for(int i=0; i<24; i++){
@@ -305,8 +311,9 @@ double decode ( int run_num ){
 		cout << "No calib file for Sd1r "<< endl;
 	}
 
-	//Alpha_Sd1s.open ( "/home/jerome/12Be_exp/Calibration_files/Sd1s_4815Ped.txt" );//put the correct path and file name
-    Alpha_Sd1s.open("/home/jerome/12Be_exp/notarget_peak_position/Sd1s_notarget_fit.txt"); //calibration using 12C beam
+	Alpha_Sd1s.open ( "/home/jerome/12Be_exp/Calibration_files/Sd1s_4815Ped.txt" );//put the correct path and file name
+    //Alpha_Sd1s.open("/home/jerome/12Be_exp/notarget_peak_position/Sd1s_notarget_fit.txt"); //calibration using 12C beam
+    //Alpha_Sd1s.open("/home/jerome/12Be_exp/Analysis/Sd_Calibration/Sd1sAlphaCalibration.txt");//New Alpha calibration
 	if(Alpha_Sd1s.is_open()){
 		Alpha_Sd1s.ignore(256,'\n');
 		for(int i=0; i<32; i++){
@@ -317,7 +324,8 @@ double decode ( int run_num ){
 	}
 		
 	//Alpha_Sd2r.open("/home/jerome/12Be_exp/Calibration_files/Sd2r_4815Ped.txt");//put the correct path and file name
-	Alpha_Sd2r.open("/home/jerome/12Be_exp/notarget_peak_position/Sd2r_notarget_fit.txt"); //calibration using 12C beam
+	//Alpha_Sd2r.open("/home/jerome/12Be_exp/notarget_peak_position/Sd2r_notarget_fit.txt"); //calibration using 12C beam
+    Alpha_Sd2r.open("/home/jerome/12Be_exp/Analysis/Sd_Calibration/Sd2rInBeamCalibration.txt"); //calibration using 12C beam and 4He particles
 	if(Alpha_Sd2r.is_open()){
 		Alpha_Sd2r.ignore(256,'\n');
 		for(int i=0; i<24; i++){
@@ -327,8 +335,8 @@ double decode ( int run_num ){
 		cout << "No calib file for Sd2r "<< endl;
 	}
 
-	//Alpha_Sd2s.open ( "/home/jerome/12Be_exp/Calibration_files/Sd2s_4815Ped.txt" );//put the correct path and file name
-	Alpha_Sd2s.open("/home/jerome/12Be_exp/notarget_peak_position/Sd2s_notarget_fit.txt"); //calibration using 12C beam
+	Alpha_Sd2s.open ( "/home/jerome/12Be_exp/Calibration_files/Sd2s_4815Ped.txt" );//put the correct path and file name
+	//Alpha_Sd2s.open("/home/jerome/12Be_exp/notarget_peak_position/Sd2s_notarget_fit.txt"); //calibration using 12C beam
 	if(Alpha_Sd2s.is_open()){
 		Alpha_Sd2s.ignore(256,'\n');
 		for(int i=0; i<32; i++){

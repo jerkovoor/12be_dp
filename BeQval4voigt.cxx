@@ -100,8 +100,8 @@ void BeQval4voigt(){
     TF1* voigt4I = new TF1("voigt4I",voig4,-10,10,23);
 
     
-    TH1D *hBeQ = (TH1D*)fg->Get("hQval");
-    TH1D *hBeQ1 = (TH1D*)g1->Get("hQval");
+    TH1D *hBeQ = (TH1D*)g1->Get("hQval"); //Interchanged fg and g1. commentend out rebin(8)
+    TH1D *hBeQ1 = (TH1D*)fg->Get("hQval");
     TH1D *hBeQ2 = (TH1D*)g->Get("hQval");
     TH1D *hBeQ4 = (TH1D*)g4->Get("hQval");
     TH1D *hBeQh1 = (TH1D*)gh1->Get("hQval");
@@ -166,6 +166,72 @@ void BeQval4voigt(){
     voigt4->SetParLimits (22,0,1);//Background amplitude
     */
     
+    ////////////////////////BACKGROUND///////////////////////////////
+    
+    double simQval[100], dataQval[100], simBackground[100], NormSimBackground[100], dataCounts[100], newCounts[99];
+    TH1D *gh = new TH1D("NewQval","",100,-7,0);
+    TH1D *gd = new TH1D("DataQval","",100,-7,0);
+    TH1D *gb = new TH1D("BackgroundQval","",100,-7,0);
+    
+    ifstream backgroundQval;
+    backgroundQval.open("/home/jerome/12Be_exp/scripts/backgroundQValue1.out");
+    
+    if(backgroundQval.is_open()){
+        for(int i=0;i<100;i++){
+            backgroundQval >> simQval[i] >> simBackground[i];
+            NormSimBackground[i] = simBackground[i]/(18242/35);//Background normalized to a maximum value of 20 by comparing to the data
+            dataQval[i] = hBeQ->GetXaxis()->GetBinCenter(i);
+            dataCounts[i] = hBeQ->GetBinContent(i);
+            //cout << dataCounts[i] << endl;
+            //cout << NormSimBackground[i] << endl;
+        }
+    }else{
+        cout << "No file found " << endl;
+    }
+    backgroundQval.close();
+    
+    for (int i=0;i<99;i++){
+        newCounts[i]=dataCounts[i+1]-NormSimBackground[i]; //i+1 and i because there is a difference in the indexes between data and simulation.
+        
+        for (int j=0;j<newCounts[i];j++){
+            gh->Fill(simQval[i]);
+        }
+        
+        for (int j=0;j<dataCounts[i+1];j++){
+            gd->Fill(simQval[i]);
+        }
+        
+        for (int j=0;j<NormSimBackground[i];j++){
+            gb->Fill(simQval[i]);
+        }
+        //cout << newCounts[i] << endl;
+    }    
+    
+    TCanvas *c1 = new TCanvas ( "c1" );
+    gh->Draw();
+    gb->Draw("same");
+    gd->Draw("same");
+    gh->SetLineWidth(3);
+    gb->SetLineWidth(2);
+    gd->SetLineWidth(2);
+    gb->SetLineColor(kBlack);
+    gd->SetLineColor(kRed);
+    gh->GetYaxis()->SetRangeUser(0,50);
+    gh->GetXaxis()->SetRangeUser(-5,-2);
+    gh->GetXaxis()->SetTitle("Q Value [MeV]"); gh->GetXaxis()->CenterTitle();
+    gh->GetYaxis()->SetTitle("Counts"); gh->GetYaxis()->CenterTitle();
+    gh->SetStats(0);
+    
+    auto legend1 = new TLegend(0.7,0.7,0.7,0.7);
+	legend1->AddEntry(gh,"Data with background subtracted","l");
+	legend1->AddEntry(gb,"Background","l");
+    legend1->AddEntry(gd,"Data","l");
+    legend1->Draw();
+    
+    ////////////////////////BACKGROUND///////////////////////////////
+        
+    TCanvas *c2 = new TCanvas ( "c2" ); 
+    
     voigt4->FixParameter (0,0.01);//Amplitude of first gaussian
     voigt4->FixParameter (1,-4.13); //( 1,-4.18,-4.05);//centroid of first gaussian and lorentzian
 	voigt4->FixParameter (2,0.0653099);//SD of all the gaussians except for the fourth
@@ -191,7 +257,7 @@ void BeQval4voigt(){
     //voigt4->SetParLimits (22,0.00267,0.005);//Background amplitude
     
     hBeQ->Draw();
-	hBeQ->Rebin(8);
+	//hBeQ->Rebin(8);
     hBeQ->SetLineWidth(2);
     
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
@@ -235,7 +301,7 @@ void BeQval4voigt(){
     voigt1c->SetLineWidth(3);
     voigt1d->Draw("same");
     voigt1d->SetLineWidth(3);
-    
+    /*
     totala->Draw("same");
     totala->SetLineWidth(3);
     totala->SetLineColor(kBlue);
@@ -251,7 +317,7 @@ void BeQval4voigt(){
     totald->Draw("same");
     totald->SetLineWidth(3);
     totald->SetLineColor(kBlue);
-    
+    */
     
     background->Draw("same");
     background->SetLineWidth(3);
