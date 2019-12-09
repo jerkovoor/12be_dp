@@ -98,12 +98,72 @@ std::vector<YuDet> CheckChargeSharing(std::vector<YuDet> detect) {
 }
 
 double yuAnalysisBe(){
+    
+    
+    //////////////Target thickness////////////////
+    
+    
+    bool TT43 = 1;//Target thickness 43 um
+    bool TT45 = 0;//Target thickness 45 um
+    bool TT47 = 0;//Target thickness 47 um
+    bool TT49_99 = 0;//Target thickness 49.99 um
+    bool TT60 = 0;//Target thickness 60 um
+    
+    
+    float TThickness;
+    
+    if(TT43){
+        TThickness = 43;
+    }else if(TT45){
+        TThickness = 45;
+    }else if(TT47){
+        TThickness = 47;
+    }else if(TT49_99){
+        TThickness = 49.99;
+    }else if(TT60){
+        TThickness = 60.78992;
+    }
+    
+    /////////////////Si shift/////////////////////
+    
+    bool SiShift = 0;
+    
+    float shift;//0.0931323;//0.0917619;//0.0932167;
+    
+    if (SiShift){
+        shift=0.0885;
+    }else{
+        shift=0;
+    }
+    
+    ////////////////Beam offset////////////////////
+    
+    bool BeamOffset = 1;
+    
+    float x_target;
+    float y_target;
+    
+    
+    if (BeamOffset){
+        x_target = -3;
+        y_target = 4;
+    }else{
+        x_target = 0;
+        y_target = 0;
+    }
+    
+    ///////////////Randomization////////////////////
+    
+    bool random = 1;
+    
 	//open the output file
 	//TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/Be/CarbonGain/Be_pedestal_TRIUMF_DL_CarbonGain_QvalMinGS_Random_NewDecode_Cut2_Yu.root","RECREATE"); //change the path and name accordingly
     //TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod_UnevenBinning_SolidAngle_n2.root","RECREATE"); //change the path and name accordingly
     //TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod_UnevenBinning_SolidAngle_n1_2_CutData_TargetFront.root","RECREATE");
     
-    TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_target/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod_UnevenBinning_SolidAngle_n1_2_target_thickness_Sd1rAlphaCal_Sd2rNewInBeamCal.root","RECREATE");
+    //TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_target/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod_UnevenBinning_SolidAngle_n1_2_target_thickness_Sd1rAlphaCal_Sd2rNewInBeamCal.root","RECREATE");
+    
+    
     
     //TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_noTarget/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod_UnevenBinning_SolidAngle_n1_2_noTarget_target_thickness_Sd1rAlphaCal_Sd2rNewInBeamCal.root","RECREATE");
     
@@ -143,19 +203,22 @@ double yuAnalysisBe(){
     
     //Be data with target
     
-    //chain->Add("/home/jerome/12Be_exp/Analysis/BeCutData.root");
+    //chain->Add("/home/jerome/12Be_exp/Analysis/ReducedData/BeCutData.root");
+    //chain->Add("/home/jerome/12Be_exp/Analysis/ReducedData/BeCcutFull2Data.root");
+    //chain->Add("/home/jerome/12Be_exp/Analysis/ReducedData/BeCut1Data.root");
+    chain->Add("/home/jerome/12Be_exp/Analysis/ReducedData/BeCutICData.root");
     
     
 	//First Half	
-	
+	/*
 	for(int run_num=5021;run_num<5096;run_num++){
 		if(run_num==5026||run_num==5040||run_num==5043||run_num==5046||run_num==5047||run_num==5059||run_num==5062||run_num==5063||run_num==5093||run_num==5099||run_num==5101){
 			continue;
 		}else{
 			//string f_name=Form("/home/jerome/12Be_exp/Analysis/Be/AlphaOnly/decode_Yupedestal_%i.root",run_num);
-			//string f_name=Form("/home/jerome/12Be_exp/Analysis/TRIUMF_DL/decodeBe_Yupedestal_TDL_%i.root",run_num);
+			string f_name=Form("/home/jerome/12Be_exp/Analysis/TRIUMF_DL/decodeBe_Yupedestal_TDL_%i.root",run_num);
 			//string f_name=Form("/home/jerome/12Be_exp/Analysis/Be_newdecode/decodeBe_Yupedestal_%i.root",run_num);// new decode
-			string f_name=Form("/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_target/decodeNewBe_Sd1rAlphaCal_Sd2rNewInBeamCal_TDL_YuPedestal%i.root",run_num);// new decode
+			//string f_name=Form("/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_target/decodeNewBe_Sd1rAlphaCal_Sd2rNewInBeamCal_TDL_YuPedestal%i.root",run_num);// new decode
 			chain->Add(f_name.c_str());
 		}
 	}
@@ -167,18 +230,18 @@ double yuAnalysisBe(){
 			continue;
 		}else{
             //string f_name=Form("/home/jerome/12Be_exp/Analysis/Be/AlphaOnly/decode_Yupedestal_%i.root",run_num);
-            //string f_name=Form("/home/jerome/12Be_exp/Analysis/TRIUMF_DL/decodeBe_Yupedestal_TDL_%i.root",run_num);
+            string f_name=Form("/home/jerome/12Be_exp/Analysis/TRIUMF_DL/decodeBe_Yupedestal_TDL_%i.root",run_num);
             //string f_name=Form("/home/jerome/12Be_exp/Analysis/Be_newdecode/decodeBe_Yupedestal_%i.root",run_num);// new decode
-            string f_name=Form("/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_target/decodeNewBe_Sd1rAlphaCal_Sd2rNewInBeamCal_TDL_YuPedestal%i.root",run_num);// new decode
+            //string f_name=Form("/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_target/decodeNewBe_Sd1rAlphaCal_Sd2rNewInBeamCal_TDL_YuPedestal%i.root",run_num);// new decode
             chain->Add(f_name.c_str());
         }
 	}
     
 	for(int run_num=5115;run_num<5133;run_num++){
 		//string f_name=Form("/home/jerome/12Be_exp/Analysis/Be/AlphaOnly/decode_Yupedestal_%i.root",run_num);
-		//string f_name=Form("/home/jerome/12Be_exp/Analysis/TRIUMF_DL/decodeBe_Yupedestal_TDL_%i.root",run_num);
+		string f_name=Form("/home/jerome/12Be_exp/Analysis/TRIUMF_DL/decodeBe_Yupedestal_TDL_%i.root",run_num);
 		//string f_name=Form("/home/jerome/12Be_exp/Analysis/Be_newdecode/decodeBe_Yupedestal_%i.root",run_num);// new decode
-        string f_name=Form("/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_target/decodeNewBe_Sd1rAlphaCal_Sd2rNewInBeamCal_TDL_YuPedestal%i.root",run_num);// new decode
+        //string f_name=Form("/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_target/decodeNewBe_Sd1rAlphaCal_Sd2rNewInBeamCal_TDL_YuPedestal%i.root",run_num);// new decode
 		chain->Add(f_name.c_str());
 	}
 	
@@ -188,14 +251,15 @@ double yuAnalysisBe(){
 			continue;
 		}else{
 			//string f_name=Form("/home/jerome/12Be_exp/Analysis/Be/AlphaOnly/decode_Yupedestal_%i.root",run_num);
-			//string f_name=Form("/home/jerome/12Be_exp/Analysis/TRIUMF_DL/decodeBe_Yupedestal_TDL_%i.root",run_num);
+			string f_name=Form("/home/jerome/12Be_exp/Analysis/TRIUMF_DL/decodeBe_Yupedestal_TDL_%i.root",run_num);
 			//string f_name=Form("/home/jerome/12Be_exp/Analysis/Be_newdecode/decodeBe_Yupedestal_%i.root",run_num);// new decode
-            string f_name=Form("/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_target/decodeNewBe_Sd1rAlphaCal_Sd2rNewInBeamCal_TDL_YuPedestal%i.root",run_num);// new decode
+            //string f_name=Form("/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_target/decodeNewBe_Sd1rAlphaCal_Sd2rNewInBeamCal_TDL_YuPedestal%i.root",run_num);// new decode
 			chain->Add(f_name.c_str());
 		}
 	}
+	*/
 	
-	
+
 	//define the input variables
 	//YYD detector
 	int YdMul;
@@ -262,9 +326,10 @@ double yuAnalysisBe(){
 	vector<int>* SusChannel= new vector<int>(); //Sector Channels
 	vector<double>* SusEnergyRaw= new vector<double>();
     
-    /*
+    
 	
 	//reading the input tree
+    
 	chain->SetBranchAddress ( "YdMulO",&YdMul );
 	chain->SetBranchAddress ( "YdChannelO",&YdChannel );
 	chain->SetBranchAddress ( "YdEnergyRawO",&YdEnergyRaw );
@@ -317,10 +382,10 @@ double yuAnalysisBe(){
 	chain->SetBranchAddress ( "SusMulO",&SusMul );
 	chain->SetBranchAddress ( "SusChannelO",&SusChannel );
 	chain->SetBranchAddress ( "SusEnergyRawO",&SusEnergyRaw );
-	*/
+	
     
     
-    
+    /*
     //reading the input tree
 	chain->SetBranchAddress ( "YdMul",&YdMul );
 	chain->SetBranchAddress ( "YdChannel",&YdChannel );
@@ -374,7 +439,7 @@ double yuAnalysisBe(){
 	chain->SetBranchAddress ( "SusMul",&SusMul );
 	chain->SetBranchAddress ( "SusChannel",&SusChannel );
 	chain->SetBranchAddress ( "SusEnergyRaw",&SusEnergyRaw );
-	
+	*/
 	
     
 	//read in the geometry file to calculate the angles
@@ -443,18 +508,33 @@ double yuAnalysisBe(){
 	}
 	//end of the geometry file
 	
+	//TFile *f_out = new TFile(Form("/home/jerome/12Be_exp/Analysis/BeamOffset/beryllium/Be_pedestal_TRIUMF_DL_BeamOffset_-3_4_NoShift_IC_Cut_TargetDistance%.0fmm_TargetThickness%.2fum_Yu_Mod_UnevenBinning_Sd1rAlphaCal_Sd2rNewInBeamCal.root",0-Yuz,TThickness),"RECREATE");
+    
+    TString f_out_name;
+    
+    if (random){
+        f_out_name = Form("/home/jerome/12Be_exp/Analysis/BeamOffset/beryllium/Be_pedestal_TRIUMF_DL_BeamOffset_%.0f_%.0f_Random_Shift_%.4f_CutIC_TargetDistance%.2fmm_TargetThickness%.2fum_Yu_Mod_UnevenBinning_Sd1rAlphaCal_Sd2rNewInBeamCal_NewSectorGeometry.root",x_target,y_target,shift,0-Yuz,TThickness);
+    }else{
+        f_out_name = Form("/home/jerome/12Be_exp/Analysis/BeamOffset/beryllium/Be_pedestal_TRIUMF_DL_BeamOffset_%.0f_%.0f_Shift_%.4f_CutIC_TargetDistance%.2fmm_TargetThickness%.2fum_Yu_Mod_UnevenBinning_Sd1rAlphaCal_Sd2rNewInBeamCal_NewSectorGeometry.root",x_target,y_target,shift,0-Yuz,TThickness);
+    }
+    
+    TFile *f_out = new TFile(f_out_name,"RECREATE");
+    
 	
 	/*TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/scripts/13Ccut.root"); //PID cut for C
 	TCutG *pidcut = (TCutG*) f_cut->Get("CUTG");*/ // for C
 	
-	/*TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/Analysis/Be/BeCut1.root"); //PID cut for Be
-	TCutG *pidcut = (TCutG*) f_cut->Get("BeCut_CalSd1rSd2r");*/  // for Be
+	//TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/Analysis/Be/BeCut1.root"); //PID cut for Be
+	//TCutG *pidcut = (TCutG*) f_cut->Get("BeCut_CalSd1rSd2r");  // for Be
 	
-	/*TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/Analysis/Be/CarbonGain/BeCcutFull2.root"); //PID cut for Be
-	TCutG *pidcut = (TCutG*) f_cut->Get("BeCut_CalSd1rSd2rFull2");*/
+	//TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/Analysis/Be/CarbonGain/BeCcutFull2.root"); //PID cut for Be
+	//TCutG *pidcut = (TCutG*) f_cut->Get("BeCut_CalSd1rSd2rFull2");
+	
+	TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/Analysis/Be/cuts/BeCutIC.root"); //PID cut for Be
+	TCutG *pidcut = (TCutG*) f_cut->Get("BeCut_CalSd1rSd2rIC");
     
-    TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/Analysis/Be/cuts/BeCutIC.root"); //PID cut for Be
-	TCutG *pidcut = (TCutG*) f_cut->Get("BeCut_NewCalSd1rSd2r");
+    //TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/Analysis/Be/cuts/BeCutIC2.root"); //PID cut for Be with Sd1rAlphaCal_Sd2rNewInBeamCal
+	//TCutG *pidcut = (TCutG*) f_cut->Get("BeCut_NewCalSd1rSd2r");
     
     /*TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/Analysis/Be/cuts/BeBlobIC.root"); //PID cut for Be
 	TCutG *pidcut = (TCutG*) f_cut->Get("BeBlob_CalSd1rSd2rIC");*/
@@ -541,7 +621,11 @@ double yuAnalysisBe(){
 	//Q values
 	TH1D *hEx = new TH1D("hEx","Excitation energy",500,-5,5);
     TH2D *hqvalvsEx = new TH2D("hqvalvsEx","Q value vs. Excitation energy ",500,-5,5,500,-5,5);
-	TH1D *hQval = new TH1D("hQval","Q values",100,-7,0);
+    float qval_i = -5;
+    float qval_f = -2.;
+    int bins = 50.;
+	TH1D *hQval = new TH1D("hQval","Q values",bins,qval_i,qval_f);//100,-5,0
+    hQval->GetYaxis()->SetTitle(Form("Counts/%.0f keV",(qval_f-qval_i)/bins));
     TH1D *hQval0_90 = new TH1D("hQval0_90","Q values, 0-90 degrees",800,-5,0);
 	TH1D *hQval90_180 = new TH1D("hQval90_180","Q values, 90-180 degrees",800,-5,0);
 	TH1D *hQval180_270 = new TH1D("hQval180_270","Q values, 180-270 degrees",800,-5,0);
@@ -632,12 +716,26 @@ double yuAnalysisBe(){
 	//variable definition for the Q value calculations
 	float amu = 931.5; // atomic mass unit in MeV
 	float massEjec = 938.28; //mass of the proton in MeV/c2 
-	float kBeam = 112.75; //put the correct value; beam energy 112.21 at the center of the target; 112.75 at the front of the target
+	float kBeam; //put the correct value; beam energy 112.21 at the center of the target; 112.75 at the front of the target for 60um target
+	
+	if(TT43){
+        kBeam = 112.37;
+    }else if(TT45){
+        kBeam = 112.35;
+    }else if(TT47){
+        kBeam = 112.33;
+    }else if(TT49_99){
+        kBeam = 112.31;
+    }else if(TT60){
+        kBeam = 112.21;
+    }
+	
+	
 	float mbeam = 12 * amu;  //mass of the beam (12Be or 12C) in MeV
 	float mrecoil = 13 * amu;  //mass of the recoil (13Be or 13C) in MeV
 	float mejec = 1 * amu; //mass of the proton
     
-
+    cout << TThickness << " " << kBeam << " " << 0-Yuz << endl;
 	double Ex, Qval, QvalT, Qval1, QvalYd; //Q value variable
 	vector<double> *YuAngle = new vector<double>; //Yu angle variable definition
     
@@ -707,9 +805,9 @@ double yuAnalysisBe(){
 	}
 	
 	double phi[8], r[16], R[8][16], DetAngle[8][16];
-    phi[0]=22.5;
+    phi[0]=90.0;
     for (int i=1;i<8;i++){
-        phi[i]=phi[0]+45*i;
+        phi[i]=phi[0]-45*i;
         //cout << phi[i] << endl;
     }
     
@@ -718,26 +816,25 @@ double yuAnalysisBe(){
         //cout << r[i] << endl;
     }
     
+    
+    //Beam offset
     for (int i=0;i<8;i++){
         for (int j=0;j<16;j++){
-            double x_yu = r[j]*sin(phi[i]);
-            double y_yu = r[j]*cos(phi[i]);
-            double x_target = 0;
-            double y_target = 0;
+            double x_yu = r[j]*cos(phi[i]*M_PI/180.);
+            double y_yu = r[j]*sin(phi[i]*M_PI/180.);
+            
             TVector3 vec1(0, 0, 0-Yuz);
             TVector3 vec2(x_yu - x_target, y_yu - y_target, Yuz);
             double angle = vec1.Angle(vec2);
             // std::cout << i << '\t' << j << '\t' << angle*180./M_PI << std::endl;
-            //R[i][j][xindex][yindex]=TMath::Sqrt(pow((x[xindex]-A),2)+pow((y[yindex]-B),2));
-            //DetAngle[i][j][xindex][yindex]=180-TMath::RadToDeg()*TMath::ATan(R[i][j][xindex][yindex]/(0-Yuz));
+            
             DetAngle[i][j] = angle*180./M_PI;
-            //cout << DetAngle[i][j][xindex][yindex] << endl;
         }
     }
 	
 	int seed = 123;
 	TRandom3* ran = new TRandom3(seed);
-	double shift=0.0885;//0.0931323;//0.0917619;//0.0932167;
+	
 	float Q13Be0 = -2.649;
     double YuEnergyLoss, YuEnergyShift;
     
@@ -782,7 +879,7 @@ double yuAnalysisBe(){
 		if(!Sd2rDetector.empty()) std::sort(Sd2rDetector.begin(), Sd2rDetector.end(), sortByEnergyS3());
 		
         
-		if(Sd1rDetector.empty() || Sd2rDetector.empty()) continue;
+		//if(Sd1rDetector.empty() || Sd2rDetector.empty()) continue;
 		//if(YuDetector.empty()) continue;
         //if(ICEnergyRaw < 620 || ICEnergyRaw > 1100) continue;
 		//if(!pidcut->IsInside(Sd2rDetector[0].energy,Sd1rDetector[0].energy)) continue;
@@ -826,30 +923,31 @@ double yuAnalysisBe(){
         
         
 		//fill in the Yu detector
-        if (!YuDetector.empty() && YuDetector[0].energy>0.20){
+        if (!YuDetector.empty() && YuDetector[0].energy>0.2){
             //calculate the angles for the Yu detector
             yuM = Ydr0+ ( YuDetector[0].ring*YChWidth )+YChMiddle;
             TVector3 YuposM ( 0,yuM,Yuz); //shifting the detecor
             YuposM.SetPhi ( TMath::Pi() /2-YuDetector[0].sector *TMath::Pi() /4 ); //Pi/2 because the center of the sector is at 90degrees, Pi/4 is because there is 8 sectors so it is 2Pi/8
             //YuthetaM = beam.Angle ( YuposM ) *TMath::RadToDeg();
             YuthetaMRad = beam.Angle ( YuposM );
-            //YuthetaM=DetAngle[YuDetector[0].sector][YuDetector[0].ring];
-            YuthetaM=ran->Uniform(Yubins[15-YuDetector[0].ring],Yubins[15-YuDetector[0].ring+1]);
-            //For solid angle
-            int binmod=(YuDetector[0].ring-YuDetector[0].ring%n)/n;
-            YuthetaSolidAngle=ran->Uniform(solidAngleBins[omegaLength-1-binmod],solidAngleBins[omegaLength-binmod]);
             
-            //Randomization
-            /*double phiRand = ran->Uniform(phi[YuDetector[0].sector]-21,phi[YuDetector[0].sector]+21);
-            double rRand = ran->Uniform(r[YuDetector[0].ring]-4.9375/2, r[YuDetector[0].ring]+4.9375/2);
-            double x_yu = rRand*sin(phiRand);
-            double y_yu = rRand*cos(phiRand);
-            double x_target = 2;
-            double y_target = -2.8;
-            TVector3 vec1(0, 0, 0-Yuz);
-            TVector3 vec2(x_yu - x_target, y_yu - y_target, Yuz);
-            double angle = vec1.Angle(vec2);
-            YuthetaM=angle*180./M_PI;*/
+            
+            if (!random){
+                YuthetaM=DetAngle[YuDetector[0].sector][YuDetector[0].ring];
+            }else if (random && !BeamOffset){
+                YuthetaM=ran->Uniform(Yubins[15-YuDetector[0].ring],Yubins[15-YuDetector[0].ring+1]);
+            }else if (random && BeamOffset){            
+                //Randomization with beam offset
+                double phiRand = ran->Uniform(phi[YuDetector[0].sector]-21,phi[YuDetector[0].sector]+21);
+                double rRand = ran->Uniform(r[YuDetector[0].ring]-4.9375/2, r[YuDetector[0].ring]+4.9375/2);
+                double x_yuRand = rRand*sin(phiRand);
+                double y_yuRand = rRand*cos(phiRand);
+                TVector3 vec1Rand(0, 0, 0-Yuz);
+                TVector3 vec2Rand(x_yuRand - x_target, y_yuRand - y_target, Yuz);
+                double angleRand = vec1Rand.Angle(vec2Rand);
+                YuthetaM=angleRand*180./M_PI;
+            }
+            
             //cout << ev_num << "       " << YuDetector[0].channel << "       " << YuDetector[0].sector << "       " << YuDetector[0].ring << "       " << phiRand << "       " << rRand << "       " << YuthetaM << endl;
             
             YuAngle->push_back(YuthetaM);
@@ -857,7 +955,12 @@ double yuAnalysisBe(){
             
             double YuEnergyLoss = protonELB->AddBack(YuEnergyShift, 5e-5/fabs(cos(YuthetaM*M_PI/180.)));
             YuEnergyLoss = protonELA->AddBack(YuEnergyLoss, 1e-4/fabs(cos(YuthetaM*M_PI/180.)));
-            //YuEnergyLoss = protonELD->AddBack(YuEnergyLoss, 30./1000./fabs(cos(YuthetaM*M_PI/180.)));//
+            YuEnergyLoss = protonELD->AddBack(YuEnergyLoss, (TThickness/2)/1000./fabs(cos(YuthetaM*M_PI/180.)));//
+            
+            
+            //For solid angle
+            int binmod=(YuDetector[0].ring-YuDetector[0].ring%n)/n;
+            YuthetaSolidAngle=ran->Uniform(solidAngleBins[omegaLength-1-binmod],solidAngleBins[omegaLength-binmod]);
 							
             //Adding the energy lost by the protons through the target and the deadlayers of the Yu detector (11/15/2018)  
 

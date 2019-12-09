@@ -69,14 +69,38 @@ std::vector<YuDet> CheckChargeSharing(std::vector<YuDet> detect) {
 
 
 double yuAnalysis(){
+    
+    bool TT43 = 0;//Target thickness 43 um
+    bool TT45 = 0;//Target thickness 45 um
+    bool TT47 = 0;//Target thickness 47 um
+    bool TT49_99 = 1;//Target thickness 49.99um
+    
+    float TThickness;
+    
+    if(TT43){
+        TThickness = 43;
+    }else if(TT45){
+        TThickness = 45;
+    }else if(TT47){
+        TThickness = 47;
+    }else if(TT49_99){
+        TThickness = 49.99;
+    }   
+    
 	//open the output file
     
     //TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/C_pedestal_TRIUMF_DL_NoOffset_Shift0_0883_Yu_TargetDistance80_88mm_TargetMiddle.root","RECREATE");
     //TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/C_pedestal_TRIUMF_DL_NoOffset_NoShift_Yu_TargetDistance80_88mm_TargetMiddle.root","RECREATE");
     //TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/C_pedestal_TRIUMF_DL_NoOffset_NoShift_Yu_TargetDistance80_88mm_TargetMiddle.root","RECREATE");
 
-	//TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/C_pedestal_TRIUMF_DL_NoOffset_Shift0_0883_Yu_TargetDistance80_88mm_TargetThickness_SdrNewInBeamCal_TargetFront.root","RECREATE"); //change the path and name accordingly
-    TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withoutTarget/C_pedestal_TRIUMF_DL_NoTarget_NoOffset_Shift0_0883_Yu_TargetDistance80_88mm_TargetThickness_SdrNewInBeamCal_TargetMiddle.root","RECREATE"); //No target
+	//TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/C_pedestal_TRIUMF_DL_NoOffset_Shift0_0883_Yu_TargetDistance80_88mm_TargetThickness49.99um_SdrNewInBeamCal_TargetFront.root","RECREATE"); //change the path and name accordingly
+    
+    //TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/C_pedestal_TRIUMF_DL_NoOffset_NoShift_Yu_TargetDistance85mm_TargetThickness43um_SdrNewInBeamCal_TargetMiddle.root","RECREATE"); //change the path and name accordingly
+    
+    //TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withoutTarget/C_pedestal_TRIUMF_DL_NoTarget_NoOffset_Shift0_0883_Yu_TargetDistance80_88mm_TargetThickness_SdrNewInBeamCal_TargetMiddle.root","RECREATE"); //No target
+    
+    
+    
     
 	//Open the input files
 	TChain *chain = new TChain ( "AutoTree" ); //chain the desired input files
@@ -132,8 +156,12 @@ double yuAnalysis(){
 	}*/
     
     
-	/*
+	
 	//Carbon data with target
+	
+	chain->Add("/home/jerome/12Be_exp/Analysis/ReducedData/CarbonReduced/C_13CcutFull_Data.root");
+	
+	/*
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5001.root" ); //change the path to the files and the file name accordingly
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5002.root" );
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5003.root" );
@@ -154,6 +182,12 @@ double yuAnalysis(){
 	chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/decodeNewC_SdrNewInBeamCal_Target_TDL_YuPedestal5009.root" );
 	*/
     
+    
+    
+    
+    
+    
+    
     /*
     chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/decodeNewC_Sd1NewAlphaCal_Target_TDL_YuPedestal5001.root" );
     chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withTarget/decodeNewC_Sd1NewAlphaCal_Target_TDL_YuPedestal5002.root" );
@@ -169,7 +203,7 @@ double yuAnalysis(){
     //chain->Add ( "/home/jerome/12Be_exp/Processed_files/C_notarget/decode4992.root" );
     
     
-    chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withoutTarget/decodeNewC_SdrNewInBeamCal_NoTarget_TDL_YuPedestal4992.root" );
+    //chain->Add ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromCBeam/withoutTarget/decodeNewC_SdrNewInBeamCal_NoTarget_TDL_YuPedestal4992.root" );
 	
 	//define the input variables
 	//YYD detector
@@ -356,7 +390,7 @@ double yuAnalysis(){
 		}
 	}
 	//end of the geometry file
-	
+	TFile *f_out = new TFile(Form("/home/jerome/12Be_exp/Analysis/BeamOffset/carbon/C_pedestal_TRIUMF_DL_BeamOffset_-3_4_TargetDistance%.0fmm_TargetThickness%.2fum.root",0-Yuz,TThickness),"RECREATE");
 	
 	/*TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/scripts/13Ccut.root"); //PID cut for C
 	TCutG *pidcut = (TCutG*) f_cut->Get("CUTG"); // for C
@@ -438,8 +472,8 @@ double yuAnalysis(){
     TH2D *hICSd1rSd2r = new TH2D("hICSd1rSd2r","IC Ch. No. vs Sd1r+Sd2r Energy in MeV",600,0,120,400,0,4000);
     
 	//Q values
-	TH1D *hQval = new TH1D("hQval","Q values",160,-4,4);
-	TH1D *hQvalT = new TH1D("hQvalT","Q values with target energy loss",160,-4,4);
+	TH1D *hQval = new TH1D("hQval","Q values",100,-3.5,4);
+	TH1D *hQvalT = new TH1D("hQvalT","Q values with target energy loss",100,-3.5,4);
 	TH1D *hQval1 = new TH1D("hQval1","Q values",160,-4,4);
 	TH2D *hQvalAn = new TH2D("hQvalAn","Q values vs Angle with energy loss",16,Yubins,160,-4,4);
 	TH2D *hQvalAnT = new TH2D("hQvalAnT","Q values vs Angle with target energy loss",16,Yubins,160,-4,4);
@@ -530,12 +564,24 @@ double yuAnalysis(){
 	//variable definition for the Q value calculations
 	float amu = 931.5; // atomic mass unit in MeV
 	float massEjec = 938.28; //mass of the proton in MeV/c2 
-	float kBeam = 110; //put the correct value; beam energy 110 MeV at the center of the target; 111.22 MeV at the front of the target
+	
+	float kBeam; //put the correct value; beam energy 110.22 MeV (49.99 um) at the center of the target, 110.36(43 um); 111.22 MeV at the front of the target
+    
+	if(TT43){
+        kBeam = 110.36;
+    }else if(TT45){
+        kBeam = 110.32;
+    }else if(TT47){
+        kBeam = 110.28;
+    }else if(TT49_99){
+        kBeam = 110.22;
+    }
+	
 	float mbeam = 12 * amu;  //mass of the beam (12Be or 12C) in MeV
 	float mrecoil = 13 * amu;  //mass of the recoil (13Be or 13C) in MeV
 	float mejec = 1 * amu; //mass of the proton
     
-
+    cout << TThickness << " " << kBeam << endl;
 	double Qval, QvalT, Qval1;; //Q value variable
 	vector<double> *YuAngle = new vector<double>; //Yu angle variable definition
     
@@ -619,10 +665,10 @@ double yuAnalysis(){
 	
 	for (int i=0;i<8;i++){
         for (int j=0;j<16;j++){
-            double x_yu = r[j]*sin(phi[i]);
-            double y_yu = r[j]*cos(phi[i]);
-            double x_target = 0;
-            double y_target = 0;
+            double x_yu = r[j]*sin(phi[i]*M_PI/180.);
+            double y_yu = r[j]*cos(phi[i]*M_PI/180.);
+            double x_target = -3;
+            double y_target = 4;
             TVector3 vec1(0, 0, 0-Yuz);
             TVector3 vec2(x_yu - x_target, y_yu - y_target, Yuz);
             double angle = vec1.Angle(vec2);
@@ -677,9 +723,9 @@ double yuAnalysis(){
 		if(!Sd2rDetector.empty()) std::sort(Sd2rDetector.begin(), Sd2rDetector.end(), sortByEnergyS3());
 		
 		if(Sd1rDetector.empty() || Sd2rDetector.empty()) continue;
-		//if(YuDetector.empty()) continue;
-        //if(ICEnergyRaw < 1500 || ICEnergyRaw > 2200) continue;
-		//if(!pidcut->IsInside(Sd2rDetector[0].energy,Sd1rDetector[0].energy)) continue;
+		if(YuDetector.empty()) continue;
+        if(ICEnergyRaw < 1500 || ICEnergyRaw > 2200) continue;
+		if(!pidcut->IsInside(Sd2rDetector[0].energy,Sd1rDetector[0].energy)) continue;
 		
 		
 		
@@ -766,10 +812,10 @@ double yuAnalysis(){
 				//double newEnergy = protonEL->AddBack(YuEnergy->at(0) + loss1 + loss2, 30./1000./cos(YuAngleMap[YuDetector[0].ring]*M_PI/180.));
 				//std::cout << YuEnergy->at(0) + loss1 + loss2 << '\t' << YuEnergy->at(0) + loss1 + loss2 + loss3 << '\t' << newEnergy << std::endl;
 			//}
-            double DThickness = ran->Uniform(0,60.78992);
+            double DThickness = ran->Uniform(0,49.99);//60.78992
             double YuEnergyLoss = protonELB->AddBack(YuEnergyShift, 5e-5/fabs(cos(YuthetaM*M_PI/180.)));
             YuEnergyLoss = protonELA->AddBack(YuEnergyLoss, 1e-4/fabs(cos(YuthetaM*M_PI/180.)));
-			YuEnergyLoss = protonELD->AddBack(YuEnergyLoss, 30./1000./fabs(cos(YuthetaM*M_PI/180.)));//
+			YuEnergyLoss = protonELD->AddBack(YuEnergyLoss, (TThickness/2)/1000./fabs(cos(YuthetaM*M_PI/180.)));//
 			//YuEnergyLoss=YuDetector[0].energy+loss;
 			//cout << ev_num << "	" << YuDetector[0].ring << "		" << YuEnergy->at ( 0 ) << loss1 << loss2 << loss3 << loss << endl;
 			hYuEn->Fill(YuEnergyLoss);
