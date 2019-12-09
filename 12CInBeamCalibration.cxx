@@ -1,3 +1,5 @@
+//In-beam calibration of Sd1 and Sd2 using 12C beam and 4He particles
+
 using namespace std;
 
 
@@ -90,6 +92,7 @@ void CInBeamCalibration(){
         EnHe_Al2[i] = He_Al->CalcRemainder(EnHe_SiO2[i],dSdAl2/fabs(cos(Sd1rAngles[i]*M_PI/180.)));
         EnHe_B[i] = He_B->CalcRemainder(EnHe_Al2[i],dSdB/fabs(cos(Sd1rAngles[i]*M_PI/180.)));
      */ 
+    //Decided not to consider angle effects in the energy loss of 4He particles.
     
         ///////////////////Sd1////////////////////
         

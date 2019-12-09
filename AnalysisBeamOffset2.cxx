@@ -50,7 +50,33 @@ struct sortByEnergyS3 {
 
 double AnalysisBeamOffset2(){
 	//open the output file
-	TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/C_pedestal_TRIUMF_DL_BeamOffset5_5_shift0_091_TargetDistance81_2.root","RECREATE"); //change the path and name accordingly
+    
+    bool TT43 = 0;//Target thickness 43 um
+    bool TT45 = 0;//Target thickness 45 um
+    bool TT47 = 0;//Target thickness 47 um
+    bool TT49_99 = 1;//Target thickness 49.99 um
+    
+    float TThickness;
+    
+    if(TT43){
+        TThickness = 43;
+    }else if(TT45){
+        TThickness = 45;
+    }else if(TT47){
+        TThickness = 47;
+    }else if(TT49_99){
+        TThickness = 49.99;
+    }
+    
+    double OffsetInitialx=-10;
+    double OffsetFinalx=0;
+    double OffsetInitialy=-5;
+    double OffsetFinaly=5;
+    double interval=(OffsetFinalx-OffsetInitialx)/20;
+    
+    TString matrix = Form("_%.0f_%.0f_%.0f_%.0f_",OffsetInitialx,OffsetFinalx,OffsetInitialy,OffsetFinaly);    
+    
+	
   
 	//Open the input files
 	TChain *chain = new TChain ( "AutoTree" ); //chain the desired input files
@@ -64,6 +90,10 @@ double AnalysisBeamOffset2(){
     protonELD->AddBackHigh(15.);
 	
 	//Carbon data with target
+    
+    chain->Add("/home/jerome/12Be_exp/Analysis/ReducedData/CarbonReduced/C_13CcutFull_Data.root");
+    
+    /*
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5001.root" ); //change the path to the files and the file name accordingly
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5002.root" );
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5003.root" );
@@ -71,6 +101,8 @@ double AnalysisBeamOffset2(){
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5006.root" );
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5007.root" );
 	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5009.root" );
+	
+	*/
 	
 	/*chain->Add ( "/home/jerome/12Be_exp/Analysis/with_pedestal/decode_Yupedestal_5001.root" ); //change the path to the files and the file name accordingly
 	chain->Add ( "/home/jerome/12Be_exp/Analysis/with_pedestal/decode_Yupedestal_5002.root" );
@@ -148,6 +180,8 @@ double AnalysisBeamOffset2(){
 	vector<double>* SusEnergyRaw= new vector<double>();
 	
 	//reading the input tree
+    
+    /*
 	chain->SetBranchAddress ( "YdMul",&YdMul );
 	chain->SetBranchAddress ( "YdChannel",&YdChannel );
 	chain->SetBranchAddress ( "YdEnergyRaw",&YdEnergyRaw );
@@ -200,6 +234,61 @@ double AnalysisBeamOffset2(){
 	chain->SetBranchAddress ( "SusMul",&SusMul );
 	chain->SetBranchAddress ( "SusChannel",&SusChannel );
 	chain->SetBranchAddress ( "SusEnergyRaw",&SusEnergyRaw );
+    */
+    
+    
+    chain->SetBranchAddress ( "YdMulO",&YdMul );
+	chain->SetBranchAddress ( "YdChannelO",&YdChannel );
+	chain->SetBranchAddress ( "YdEnergyRawO",&YdEnergyRaw );
+	chain->SetBranchAddress ( "YdEnergyO",&YdEnergy );
+	chain->SetBranchAddress ( "YdRingO",&YdRing );
+	chain->SetBranchAddress ( "YdSectorO",&YdSector );
+	
+	chain->SetBranchAddress ( "YuMulO",&YuMul );
+	chain->SetBranchAddress ( "YuChannelO",&YuChannel );
+	chain->SetBranchAddress ( "YuEnergyRawO",&YuEnergyRaw );
+	chain->SetBranchAddress ( "YuEnergyO",&YuEnergy );
+	chain->SetBranchAddress ( "YuRingO",&YuRing );
+	chain->SetBranchAddress ( "YuSectorO",&YuSector );
+	
+	chain->SetBranchAddress ( "CsI1MulO",&CsI1Mul );
+	chain->SetBranchAddress ( "CsI1ChannelO",&CsI1Channel );
+	chain->SetBranchAddress ( "CsI1EnergyRawO",&CsI1EnergyRaw );
+	
+	chain->SetBranchAddress ( "CsI2MulO",&CsI2Mul );
+	chain->SetBranchAddress ( "CsI2ChannelO",&CsI2Channel );
+	chain->SetBranchAddress ( "CsI2EnergyRawO",&CsI2EnergyRaw );
+	
+	chain->SetBranchAddress ( "ICChannelO",&ICChannel );
+	chain->SetBranchAddress ( "ICEnergyRawO",&ICEnergyRaw );
+	
+	chain->SetBranchAddress ( "Sd1rMulO",&Sd1rMul );
+	chain->SetBranchAddress ( "Sd1rChannelO",&Sd1rChannel );
+	chain->SetBranchAddress ( "Sd1rEnergyRawO",&Sd1rEnergyRaw );
+	chain->SetBranchAddress ( "Sd1rEnergyO",&Sd1rEnergy );
+	
+	chain->SetBranchAddress ( "Sd1sMulO",&Sd1sMul );
+	chain->SetBranchAddress ( "Sd1sChannelO",&Sd1sChannel );
+	chain->SetBranchAddress ( "Sd1sEnergyRawO",&Sd1sEnergyRaw );
+	chain->SetBranchAddress ( "Sd1sEnergyO",&Sd1sEnergy );
+	
+	chain->SetBranchAddress ( "Sd2rMulO",&Sd2rMul );
+	chain->SetBranchAddress ( "Sd2rChannelO",&Sd2rChannel );
+	chain->SetBranchAddress ( "Sd2rEnergyRawO",&Sd2rEnergyRaw );
+	chain->SetBranchAddress ( "Sd2rEnergyO",&Sd2rEnergy );
+	
+	chain->SetBranchAddress ( "Sd2sMulO",&Sd2sMul );
+	chain->SetBranchAddress ( "Sd2sChannelO",&Sd2sChannel );
+	chain->SetBranchAddress ( "Sd2sEnergyRawO",&Sd2sEnergyRaw );
+	chain->SetBranchAddress ( "Sd2sEnergyO",&Sd2sEnergy );
+	
+	chain->SetBranchAddress ( "SurMulO",&SurMul );
+	chain->SetBranchAddress ( "SurChannelO",&SurChannel );
+	chain->SetBranchAddress ( "SurEnergyRawO",&SurEnergyRaw );
+	
+	chain->SetBranchAddress ( "SusMulO",&SusMul );
+	chain->SetBranchAddress ( "SusChannelO",&SusChannel );
+	chain->SetBranchAddress ( "SusEnergyRawO",&SusEnergyRaw );
     
 	//read in the geometry file to calculate the angles
 	ifstream geometry;
@@ -268,6 +357,8 @@ double AnalysisBeamOffset2(){
 	//end of the geometry file
 	
 	
+	TFile *f_out = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/carbon/C_pedestal_TRIUMF_DL_BeamOffset" + matrix + Form("TargetDistance%.0fmm_TargetThickness%.2fum_NewSectorGeometry.root",0-Yuz,TThickness),"RECREATE"); //change the path and name accordingly
+	
 	/*TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/scripts/13Ccut.root"); //PID cut for C
 	TCutG *pidcut = (TCutG*) f_cut->Get("CUTG");*/ // for C
 	
@@ -310,84 +401,32 @@ double AnalysisBeamOffset2(){
 	//variable definition for the Q value calculations
 	float amu = 931.5; // atomic mass unit in MeV
 	float massEjec = 938.28; //mass of the proton in MeV/c2 
-	float kBeam = 110; //put the correct value; beam energy
+	float kBeam;
+    
+	if(TT43){
+        kBeam = 110.36; //put the correct value; beam energy; 110.22 MeV at the center of a 49.99um thick target
+    }else if(TT45){
+        kBeam = 110.32;
+    }else if(TT47){
+        kBeam = 110.28;
+    }else if(TT49_99){
+        kBeam = 110.22;
+    }
+    
 	float mbeam = 12 * amu;  //mass of the beam (12Be or 12C) in MeV
 	float mrecoil = 13 * amu;  //mass of the recoil (13Be or 13C) in MeV
 	float mejec = 1 * amu; //mass of the proton
     
-
+    cout << TThickness << " " << kBeam << endl;
 	double Qval; //Q value variable
 	vector<double> *YuAngle = new vector<double>; //Yu angle variable definition
     
     
-	double ringB[16], ringAl[16], ringD[16], a[16], b[16], c[16], d[16], e[16], f[16], g[16], h[16], k[16], loss, loss1, loss2, loss3;
+	double loss, loss1, loss2, loss3;
 
-	ifstream Bfit;
-	Bfit.open("/home/jerome/12Be_exp/scripts/scripts/Energy_loss_data/B_Dead_layer/B_fitparameters_TRIUMF.txt");
-
-	if(Bfit.is_open()){
-		Bfit.ignore(256,'\n');
-		
-		for(int i=0;i<16;i++){
-			Bfit >> ringB[i] >> a[i] >> b[i] >> c[i];
-		}
-	}
-
-	ifstream Alfit;
-	Alfit.open("/home/jerome/12Be_exp/scripts/scripts/Energy_loss_data/Al_Dead_layer/Al_fitparameters_TRIUMF.txt");
-
-	if(Alfit.is_open()){
-		Alfit.ignore(256,'\n');
-		
-		for(int i=0;i<16;i++){
-			Alfit >> ringAl[i] >> d[i] >> e[i] >> f[i];
-		}
-	}
-    
-    
-	ifstream Dfit;
-	Dfit.open("/home/jerome/12Be_exp/scripts/scripts/Energy_loss_data/Target/D2_fitparameters_TRIUMF.txt");
-	
-	if(Dfit.is_open()){
-		Dfit.ignore(256,'\n');
-    
-		for(int i=0;i<16;i++){
-			Dfit >> ringD[i] >> g[i] >> h[i] >> k[i];
-		}
-	}
-	
-	double stripGS[128], DiffSqGS[128], DiffGS[128], stripTES[128], DiffSqTES[128], DiffTES[128], DiffAvg[128];
-	
-	ifstream EShiftGS;
-	EShiftGS.open("/home/jerome/12Be_exp/Analysis/CarbonGain/carbon_gain_GS_shift.txt");
-	
-	if(EShiftGS.is_open()){
-		EShiftGS.ignore(256,'\n');
-    
-		for(int i=0;i<128;i++){
-			EShiftGS >> stripGS[i] >> DiffSqGS[i] >> DiffGS[i];
-		}
-	}
-	
-	ifstream EShiftTES;
-	EShiftTES.open("/home/jerome/12Be_exp/Analysis/CarbonGain/carbon_gain_TES_shift.txt");
-	
-	if(EShiftTES.is_open()){
-		EShiftTES.ignore(256,'\n');
-    
-		for(int i=0;i<128;i++){
-			EShiftTES >> stripTES[i] >> DiffSqTES[i] >> DiffTES[i];
-			DiffAvg[i]=(DiffGS[i]+DiffTES[i])/2;
-		}
-	}
 	
 	double A, B;
 
-	double OffsetInitialx=-5;
-    double OffsetFinalx=5;
-    double OffsetInitialy=-5;
-    double OffsetFinaly=5;
-    double interval=1;
     int OffsetLengthx=1+(OffsetFinalx-OffsetInitialx)/interval;
     int OffsetLengthy=1+(OffsetFinaly-OffsetInitialy)/interval;
     int Length=OffsetLengthx*OffsetLengthy;
@@ -403,9 +442,9 @@ double AnalysisBeamOffset2(){
     }
     
     double phi[8], r[16], R[8][16][OffsetLengthx][OffsetLengthy], DetAngle[8][16][OffsetLengthx][OffsetLengthy];
-    phi[0]=22.5;
+    phi[0]=90.0;
     for (int i=1;i<8;i++){
-        phi[i]=phi[0]+45*i;
+        phi[i]=phi[0]-45*i;
         //cout << phi[i] << endl;
     }
     
@@ -414,14 +453,21 @@ double AnalysisBeamOffset2(){
         //cout << r[i] << endl;
     }
     
+    
+    TH2D *hYuAnPID[Length];
+	TH1D *hQval[Length];
     //Offsetting the beam
     for (int xindex=0;xindex<OffsetLengthx;xindex++){
         for (int yindex=0;yindex<OffsetLengthy;yindex++){
+            //string namehYuAnPID = Form("hYuAnPID_%i",i);
+            //hYuAnPID[i] = new TH2D(namehYuAnPID.c_str(),"YuE vs Angle with an IC and PID gate",16,Yubins,6000,0,6);//240,0,2.4
+            string namehQval = Form("hQval_%i",xindex*OffsetLengthy+yindex);
+            hQval[xindex*OffsetLengthy+yindex] = new TH1D(namehQval.c_str(),Form("Q values_%.2f_%.2f",x[xindex],y[yindex]),100,-3.5,4);//240,0,2.4
             //Calculating the angles
             for (int i=0;i<8;i++){
                 for (int j=0;j<16;j++){
-                    double x_yu = r[j]*sin(phi[i]);
-                    double y_yu = r[j]*cos(phi[i]);
+                    double x_yu = r[j]*cos(phi[i]*M_PI/180.);
+                    double y_yu = r[j]*sin(phi[i]*M_PI/180.);
                     double x_target = x[xindex];
                     double y_target = y[yindex];
                     TVector3 vec1(0, 0, 0-Yuz);//81.22,0-Yuz
@@ -438,24 +484,13 @@ double AnalysisBeamOffset2(){
     }
 
         
-    
-	TH2D *hYuAnPID[Length];
-	TH1D *hQval[Length];
-	for(int i=0;i<OffsetLengthx;i++){
-        for(int j=0;j<OffsetLengthy;j++){
-		//string namehYuAnPID = Form("hYuAnPID_%i",i);
-		//hYuAnPID[i] = new TH2D(namehYuAnPID.c_str(),"YuE vs Angle with an IC and PID gate",16,Yubins,6000,0,6);//240,0,2.4
-		string namehQval = Form("hQval_%i",i*OffsetLengthy+j);
-		hQval[i*OffsetLengthy+j] = new TH1D(namehQval.c_str(),Form("Q values_%i_%d",i,j),160,-4,4);//240,0,2.4
-        }
-	}
 	
 	double YuEnergyLoss, YuEnergyShift;
 	//TF1* fit_func1 = new TF1 ( "fit_func1","[0]*TMath::Exp(-pow((x-[1]),2)/(2*[2]*[2]))",-10,10);
 	int seed = 123;
 	TRandom3* ran = new TRandom3(seed);
 
-	double shift=0.091;//0.154;//0.0924;
+	double shift=0;//0.154;//0.0924;
 	
 	////////////////////////////////
 	// Event by event starts here //
@@ -513,21 +548,8 @@ double AnalysisBeamOffset2(){
 		
 		//fill in the Yu detector
         if (YuDetector[0].energy>1){
-            //calculate the angles for the Yu detector
-            //yuM = Ydr0+ ( YuDetector[0].ring*YChWidth )+YChMiddle;
-            //TVector3 YuposM ( 0,yuM,Yuz); //shifting the detecor
-            //YuposM.SetPhi ( TMath::Pi() /2-YuDetector[0].sector *TMath::Pi() /4 ); //Pi/2 because the center of the sector is at 90degrees, Pi/4 is because there is 8 sectors so it is 2Pi/8
-            //YuthetaM = beam.Angle ( YuposM ) *TMath::RadToDeg();
-            //YuthetaM=ran->Uniform(Yubins[15-YuDetector[0].ring],Yubins[15-YuDetector[0].ring+1]);
         
-            YuEnergyShift=YuDetector[0].energy-shift;
-            //Adding the energy lost by the protons through the target and the deadlayers of the Yu detector (11/15/2018)  
-            //loss1=(-b[YuDetector[0].ring]-TMath::Sqrt(pow(b[YuDetector[0].ring],2)-4*(a[YuDetector[0].ring]-YuEnergyShift)*c[YuDetector[0].ring]))/(2*(a[YuDetector[0].ring]-YuEnergyShift));// Boron dead layer
-            //loss2=(-e[YuDetector[0].ring]-TMath::Sqrt((e[YuDetector[0].ring]*e[YuDetector[0].ring])-4*(d[YuDetector[0].ring]-(YuEnergyShift+loss1))*f[YuDetector[0].ring]))/(2*(d[YuDetector[0].ring]-(YuEnergyShift+loss1)));// Aluminium dead layer
-            //loss3=(-h[YuDetector[0].ring]-TMath::Sqrt((h[YuDetector[0].ring]*h[YuDetector[0].ring])-4*(g[YuDetector[0].ring]-(YuEnergyShift+loss1+loss2))*k[YuDetector[0].ring]))/(2*(g[YuDetector[0].ring]-(YuEnergyShift+loss1+loss2)));// Target
-            //loss=loss1+loss2+loss3; //
-            //YuEnergyLoss=YuEnergyShift+loss;
-                
+            YuEnergyShift=YuDetector[0].energy-shift;    
 
             //Offsetting the beam
             for (int xindex=0;xindex<OffsetLengthx;xindex++){
@@ -539,10 +561,10 @@ double AnalysisBeamOffset2(){
                     //if(pidcut->IsInside(Sd2rDetector[0].energy,Sd1rDetector[0].energy) && ICEnergyRaw>620 && ICEnergyRaw<1100 ){
                     double YuEnergyLoss = protonELB->AddBack(YuEnergyShift, 5e-5/fabs(cos(YuthetaM*M_PI/180.)));
                     YuEnergyLoss = protonELA->AddBack(YuEnergyLoss, 1e-4/fabs(cos(YuthetaM*M_PI/180.)));
-                    YuEnergyLoss = protonELD->AddBack(YuEnergyLoss, 30./1000./fabs(cos(YuthetaM*M_PI/180.)));
+                    YuEnergyLoss = protonELD->AddBack(YuEnergyLoss, (TThickness/2)/1000./fabs(cos(YuthetaM*M_PI/180.)));
                     Qval = ( 1+mejec/mrecoil ) * ( YuEnergyLoss) - ( 1 - mbeam/mrecoil ) * ( kBeam ) - 2 * TMath::Sqrt ( mbeam*mejec* ( YuEnergyLoss) * ( kBeam ) ) / mrecoil * TMath::Cos ( YuthetaM * TMath::Pi() / 180. );
                     hQval[xindex*OffsetLengthy+yindex]->Fill ( Qval );
-                    //hQvalAn->Fill(YuthetaM,Qval);
+
                 }
             }
             YuAngle->push_back(YuthetaM);
@@ -563,6 +585,6 @@ double AnalysisBeamOffset2(){
 	
 	f_out->Close();
 	
-	return 0;
+	return -Yuz;
 	
 } //end of the program

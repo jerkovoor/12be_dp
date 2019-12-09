@@ -52,7 +52,7 @@ void Be_Cut_Data(){
 
     TChain *chain = new TChain ( "AutoTree" );
 
-    
+    /*
     //Be data with target
 		
 	//First Half	
@@ -103,7 +103,18 @@ void Be_Cut_Data(){
 			chain->Add(f_name.c_str());
 		}
 	}
-
+*/
+    
+    //C data with target
+    
+    chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5001.root" ); //change the path to the files and the file name accordingly
+	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5002.root" );
+	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5003.root" );
+	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5004.root" );
+	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5006.root" );
+	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5007.root" );
+	chain->Add ( "/home/jerome/12Be_exp/Processed_files/decodeNew_TDL_5009.root" );
+    
     //define the input variables
 	//YYD detector
 	int YdMul_in;
@@ -298,7 +309,12 @@ void Be_Cut_Data(){
 	//string fOut_name = Form ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/decodeNewBe_TDL_YuPedestal%i.root",run_num ); //Open the output file; put the correct path and file name
     //string fOut_name = Form ( "/home/jerome/12Be_exp/Analysis/TargetThickness/FromBeBeam/Be_noTarget/decodeNewBe_noTarget_TDL_YuPedestal%i.root",run_num ); //Be no target
     //std::cout << fOut_name << std::endl;
-	TFile* f_out = new TFile ( "/home/jerome/12Be_exp/Analysis/BeCutData.root","RECREATE" );
+    
+    
+	//TFile* f_out = new TFile ( "/home/jerome/12Be_exp/Analysis/ReducedData/BeCutICData.root","RECREATE" );
+    
+    TFile* f_out = new TFile ( "/home/jerome/12Be_exp/Analysis/ReducedData/CarbonReduced/C_13CcutFull_Data.root","RECREATE" );
+    
 	TTree* tr_out = new TTree ( "AutoTree","AutoTree" ); //create the new root tree
 	//Branches created in the new file; the leafs are removed from the three as well as arrays of vectors or whatever that was
 	tr_out->Branch ( "YdMulO",&YdMulO );
@@ -354,8 +370,18 @@ void Be_Cut_Data(){
 	tr_out->Branch ( "SusChannelO",&SusChannelO );
 	tr_out->Branch ( "SusEnergyRawO",&SusEnergyRawO );
     
-    TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/Analysis/Be/cuts/BeCutIC.root"); //PID cut for Be
-	TCutG *pidcut = (TCutG*) f_cut->Get("BeCut_CalSd1rSd2rIC");
+    
+    TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/Analysis/CarbonGain/13CcutFull.root"); //Full PID cut for C
+	TCutG *pidcut = (TCutG*) f_cut->Get("CcutCalSd1rSd2rFull"); // for C
+    
+    //TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/Analysis/Be/BeCut1.root"); //PID cut for Be
+	//TCutG *pidcut = (TCutG*) f_cut->Get("BeCut_CalSd1rSd2r");  // for Be
+    
+    //TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/Analysis/Be/CarbonGain/BeCcutFull2.root"); //PID cut for Be
+	//TCutG *pidcut = (TCutG*) f_cut->Get("BeCut_CalSd1rSd2rFull2");
+    
+    //TFile *f_cut = TFile::Open("/home/jerome/12Be_exp/Analysis/Be/cuts/BeCutIC.root"); //PID cut for Be
+	//TCutG *pidcut = (TCutG*) f_cut->Get("BeCut_CalSd1rSd2rIC");
     
     long long ev = chain->GetEntries(); //get the total number of events in the tree
 	cout << "Total number of events =" << ev << endl;
@@ -453,7 +479,8 @@ void Be_Cut_Data(){
         
         if(Sd1rDetector.empty() || Sd2rDetector.empty()) continue;
 		if(YuDetector.empty()) continue;
-        if(ICEnergyRaw_in < 620 || ICEnergyRaw_in > 1100) continue;
+        //if(ICEnergyRaw_in < 620 || ICEnergyRaw_in > 1100) continue;
+        if(ICEnergyRaw_in < 1500 || ICEnergyRaw_in > 2200) continue;
 		if(!pidcut->IsInside(Sd2rDetector[0].energy,Sd1rDetector[0].energy)) continue;
 		
 		

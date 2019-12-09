@@ -80,9 +80,9 @@ void BeQval4voigt(){
     float TDistance = 80.88;
     
 
-    TFile *fg = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod.root","READ");
+    TFile *g1 = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod.root","READ");
 	TFile *g = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod_UnevenBinning_SolidAngle_n2.root","READ");
-    TFile *g1 = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod_UnevenBinning_SolidAngle_n1_2.root","READ");
+    TFile *fg = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod_UnevenBinning_SolidAngle_n1_2.root","READ");
     TFile *g4 = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod_UnevenBinning_SolidAngle_n1.root","READ");
     TFile *gh1 = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod_UnevenBinning_SolidAngle_n1_2_FirstHalf.root","READ");
     TFile *gh2 = new TFile("/home/jerome/12Be_exp/Analysis/BeamOffset/Be_pedestal_TRIUMF_DL_NoOffset_Shift0_0885_IC_Cut_RandomAngle_TargetDistance80_88_Yu_Mod_UnevenBinning_SolidAngle_n1_2_SecondHalf.root","READ");
@@ -141,7 +141,7 @@ void BeQval4voigt(){
 	}
 	
 	// 4-Voigt Fit for Beryllium
-    /*voigt4->SetParLimits (0,0.01,15);//Amplitude of first gaussian
+    voigt4->SetParLimits (0,0.01,15);//Amplitude of first gaussian
     voigt4->SetParLimits (1,-4.3,-4.13); //( 1,-4.18,-4.05);//centroid of first gaussian and lorentzian
 	voigt4->SetParLimits (2,0.01,0.26);//SD of all the gaussians except for the fourth
 	//voigt4->SetParLimits (3,0.01,1);//Amplitude of first lorentzian
@@ -164,7 +164,7 @@ void BeQval4voigt(){
     voigt4->SetParLimits (20,0.001,0.9);//voigt4 fraction
 	voigt4->SetParLimits (21,0.001,0.2);//SD of the fourth gaussian
     voigt4->SetParLimits (22,0,1);//Background amplitude
-    */
+    
     
     ////////////////////////BACKGROUND///////////////////////////////
     
@@ -231,7 +231,7 @@ void BeQval4voigt(){
     ////////////////////////BACKGROUND///////////////////////////////
         
     TCanvas *c2 = new TCanvas ( "c2" ); 
-    
+    /*
     voigt4->FixParameter (0,0.01);//Amplitude of first gaussian
     voigt4->FixParameter (1,-4.13); //( 1,-4.18,-4.05);//centroid of first gaussian and lorentzian
 	voigt4->FixParameter (2,0.0653099);//SD of all the gaussians except for the fourth
@@ -255,9 +255,10 @@ void BeQval4voigt(){
     voigt4->FixParameter (20,0.731534);//voigt4 fraction
 	voigt4->FixParameter (21,0.153469);//SD of the fourth gaussian
     //voigt4->SetParLimits (22,0.00267,0.005);//Background amplitude
+    */
     
     hBeQ->Draw();
-	//hBeQ->Rebin(8);
+	hBeQ->Rebin(8);
     hBeQ->SetLineWidth(2);
     
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
@@ -293,13 +294,13 @@ void BeQval4voigt(){
     TF1* totald = new TF1("totald",voig1_poly6Background,-2.5,-2.15,7);
     totald->SetParameters(p[13],p[14],p[21],p[15],p[16],p[20],p[22]);
     
-    voigt1a->Draw("same");
+    //voigt1a->Draw("same");
     voigt1a->SetLineWidth(3);
-    voigt1b->Draw("same");
+    //voigt1b->Draw("same");
     voigt1b->SetLineWidth(3);
-    voigt1c->Draw("same");
+    //voigt1c->Draw("same");
     voigt1c->SetLineWidth(3);
-    voigt1d->Draw("same");
+    //voigt1d->Draw("same");
     voigt1d->SetLineWidth(3);
     /*
     totala->Draw("same");
@@ -319,21 +320,22 @@ void BeQval4voigt(){
     totald->SetLineColor(kBlue);
     */
     
-    background->Draw("same");
-    background->SetLineWidth(3);
-    background->SetLineColor(3);
+    //background->Draw("same");
+    //background->SetLineWidth(3);
+    //background->SetLineColor(3);
     
     
     hBeQ->GetXaxis()->SetRangeUser(-5,-2);
     hBeQ->SetTitle("");
     hBeQ->GetXaxis()->SetTitle("Q Value [MeV]");
     hBeQ->GetYaxis()->SetTitle("Counts");
-    hBeQ->GetXaxis()->SetLabelSize(0.05);
+    //hBeQ->GetXaxis()->SetLabelSize(0.05);
     hBeQ->GetXaxis()->SetTitleSize(0.05);
     hBeQ->GetXaxis()->SetTitleOffset(0.9);
-    hBeQ->GetYaxis()->SetLabelSize(0.05);
+    //hBeQ->GetYaxis()->SetLabelSize(0.05);
     hBeQ->GetYaxis()->SetTitleSize(0.05);
     hBeQ->GetYaxis()->SetTitleOffset(0.9);
+    hBeQ->SetStats(0);
     
     //TCanvas *c4 = new TCanvas ( "c4" );
     h_BeTDL->SetTitle("");
